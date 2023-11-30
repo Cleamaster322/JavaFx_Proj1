@@ -11,7 +11,7 @@ public class DataBaseController {
             // Загружаем драйвер JDBC для SQLite
             Class.forName("org.sqlite.JDBC");
             // Устанавливаем соединение с базой данных
-            String url = "jdbc:sqlite:path/to/your/database.db";
+            String url = "jdbc:sqlite:/com/DataBase/5_Ocean.db";
             connection = DriverManager.getConnection(url);
             // Проверяем успешность подключения
             if (connection != null) {
@@ -19,10 +19,10 @@ public class DataBaseController {
             }
         } catch (ClassNotFoundException e) {
             System.out.println("Не удалось найти драйвер JDBC.");
-            e.printStackTrace();
+
         } catch (SQLException e) {
             System.out.println("Не удалось установить соединение с базой данных.");
-            e.printStackTrace();
+
         } finally {
             try {
                 if (connection != null) {
@@ -32,7 +32,6 @@ public class DataBaseController {
                 }
             } catch (SQLException e) {
                 System.out.println("Не удалось закрыть соединение с базой данных.");
-                e.printStackTrace();
             }
         }
     }
