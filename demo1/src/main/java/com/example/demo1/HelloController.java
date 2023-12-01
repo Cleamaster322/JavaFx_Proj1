@@ -6,11 +6,20 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.sql.SQLException;
+
 public class HelloController { //ожидает передачи интерфейса, фейкового класса. Но нужно получить объект, который наследуется у интерфейса и нужен класс, который управляет зависимостями у интерфейса.
     //паттерн depencity inject
     public void onAButtonClick() {
         Stage categoryAStage = new Stage();
         categoryAStage.setTitle("Category A");
+
+        DataBaseHandler as = new DataBaseHandler();
+        try {
+            as.GetAllData();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
         // Создание пустого макета
         VBox root = new VBox();
