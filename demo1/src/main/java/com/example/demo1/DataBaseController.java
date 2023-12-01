@@ -1,38 +1,33 @@
 package com.example.demo1;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.*;
+import java.util.Properties;
 
 public class DataBaseController {
-    public static void main(String[] args) {
-        Connection connection = null;
-        try {
-            // Загружаем драйвер JDBC для SQLite
-            Class.forName("org.sqlite.JDBC");
-            // Устанавливаем соединение с базой данных
-            String url = "jdbc:sqlite:/com/DataBase/5_Ocean.db";
-            connection = DriverManager.getConnection(url);
-            // Проверяем успешность подключения
-            if (connection != null) {
-                System.out.println("Подключение к базе данных SQLite установлено.");
-            }
-        } catch (ClassNotFoundException e) {
-            System.out.println("Не удалось найти драйвер JDBC.");
+    public static void main(String[] args) throws SQLException {
 
-        } catch (SQLException e) {
-            System.out.println("Не удалось установить соединение с базой данных.");
-
-        } finally {
-            try {
-                if (connection != null) {
-                    // Закрываем соединение с базой данных
-                    connection.close();
-                    System.out.println("Подключение к базе данных SQLite закрыто.");
-                }
-            } catch (SQLException e) {
-                System.out.println("Не удалось закрыть соединение с базой данных.");
-            }
+        Properties properties = new Properties();
+        try (InputStream input = new FileInputStream("src/main/resources/sql.properties")) {
+            properties.load(input);
+        } catch (IOException e){
+            throw new RuntimeException(e);
         }
+
+        Connection connection = DriverManager.getConnection(properties.getProperty("database.url"),properties.getProperty("database.login"),properties.getProperty("database.pass"));
+
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM world.city");
+
+
+        while (resultSet.next()){
+            System.out.println(resultSet.getString(1) + " " + resultSet.getString(2) + " " + resultSet.getString(3) + " " + resultSet.getString(4) + " " + resultSet.getString(5) + " ");
+        }
+
+        connection.close();
+
+
     }
 }
