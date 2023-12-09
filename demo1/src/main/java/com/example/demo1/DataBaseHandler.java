@@ -24,10 +24,11 @@ public class DataBaseHandler {
     public void GetAllData() throws SQLException {
 
         Statement statement = getDbConnection().createStatement();
-        ResultSet resultSet = statement.executeQuery("SELECT * FROM world.city");
+        ResultSet resultSet = statement.executeQuery("SELECT Name FROM world.city WHERE id < 10;");
 
         while (resultSet.next()){
-            System.out.println(resultSet.getString(1) + " " + resultSet.getString(2) + " " + resultSet.getString(3) + " " + resultSet.getString(4) + " " + resultSet.getString(5) + " ");
+            System.out.println(resultSet.getString(1));
         }
     }
+
 }
