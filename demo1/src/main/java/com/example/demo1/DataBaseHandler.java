@@ -4,6 +4,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 public class DataBaseHandler {
     Properties properties = new Properties();
@@ -31,4 +33,18 @@ public class DataBaseHandler {
         }
     }
 
+    public List<String> GetNotAllData() throws SQLException {
+        List<String> cities = new ArrayList<>();
+
+        try (Statement statement = getDbConnection().createStatement()) {
+            ResultSet resultSet = statement.executeQuery("SELECT Name FROM world.city WHERE id < 5;");
+
+            while (resultSet.next()) {
+                String city = resultSet.getString(1);
+                cities.add(city);
+            }
+        }
+
+        return cities;
+    }
 }
