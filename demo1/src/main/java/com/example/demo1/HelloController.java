@@ -2,12 +2,14 @@ package com.example.demo1;
 
 import javafx.application.Platform;
 import javafx.collections.transformation.FilteredList;
-import javafx.geometry.HPos;
-import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.util.List;
 import javafx.scene.control.*;
@@ -16,8 +18,6 @@ import javafx.geometry.Pos;
 import javafx.scene.layout.GridPane;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HelloController extends DataBaseHandler { //ожидает передачи интерфейса, фейкового класса. Но нужно получить объект, который наследуется у интерфейса и нужен класс, который управляет зависимостями у интерфейса.
     //паттерн depencity inject
@@ -26,12 +26,6 @@ public class HelloController extends DataBaseHandler { //ожидает пере
     public void onAButtonClick() {
         Stage categoryAStage = new Stage();
         categoryAStage.setTitle("Блюда");
-
-//        try {
-//            GetAllData();
-//        } catch (SQLException e) {
-//            throw new RuntimeException(e);
-//        }
 
         VBox root = new VBox();
         root.setSpacing(30);
@@ -44,7 +38,7 @@ public class HelloController extends DataBaseHandler { //ожидает пере
         gridPane.setHgap(50);
         gridPane.setVgap(50);
 
-        addButtonsToGrid(gridPane);
+//        addButtonsToGrid(gridPane);
 
         gridPane.setAlignment(Pos.CENTER);
 
@@ -76,10 +70,9 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                 heartButton.setPrefSize(20, 20);
 
                 heartButton.setUserData(button);
-                // Добавляем кнопку с сердечком в правый верхний угол основной кнопки
+
                 buttonContainer.getChildren().addAll(button, heartButton);
 
-                // Обработчик события нажатия на кнопку с сердечком
                 heartButton.setOnAction(e -> {
                     // Копируем основную кнопку в окно "Избранное"
                     Button selectedButton = (Button) heartButton.getUserData();
@@ -121,7 +114,6 @@ public class HelloController extends DataBaseHandler { //ожидает пере
     private void updateGridPane(GridPane gridPane, String selectedCategory) {
         gridPane.getChildren().clear(); // Очищаем содержимое GridPane
 
-        // Добавляем новые кнопки в зависимости от выбранной категории
         switch (selectedCategory) {
             case "Первое":
                 addProductComboBox(gridPane);
@@ -162,17 +154,15 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                 }
             });
 
-            // Добавляем ComboBox в GridPane
             gridPane.add(productComboBox, 0, 0);
 
-            // Устанавливаем обработчик событий для ComboBox
             productComboBox.setOnAction(e -> {
                 String selectedCity = productComboBox.getValue();
                 if (selectedCity != null && !selectedCity.isEmpty() && cities.contains(selectedCity)) {
                     System.out.println("Выбран продукт: " + selectedCity);
                     Platform.runLater(() -> {
                         if (!productComboBox.getItems().isEmpty()) {
-                            productComboBox.getSelectionModel().clearSelection(); // Снятие выбора
+                            productComboBox.getSelectionModel().clearSelection();
                         }
                     });
                 }
@@ -182,22 +172,29 @@ public class HelloController extends DataBaseHandler { //ожидает пере
         }
     }
 
-
-
-    public void onCategorySelected(){
-        try {
-            GetAllData();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void onCategoryNoneSelected(GridPane gridPane) { // Добавлен аргумент gridPane
         try {
             List<String> cities = GetNotAllData();
 
             addCitiesToEmptyPane((Pane) gridPane.getChildren().get(0), cities);
         } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void addImageToButton(Button button) {
+        try {
+
+            String imagePath = "C:\\Users\\Никита Юров\\Desktop\\ДВФУ\\Java-технологии\\pomidor.jpg";
+            Image image = new Image(new FileInputStream(imagePath));
+
+            ImageView imageView = new ImageView(image);
+
+            imageView.setFitWidth(100);
+            imageView.setFitHeight(100);
+
+            button.setGraphic(imageView);
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
     }
@@ -223,6 +220,13 @@ public class HelloController extends DataBaseHandler { //ожидает пере
         categoryAStage.setTitle("Корзина");
 
         VBox root = new VBox();
+        root.setAlignment(Pos.CENTER);
+
+        Button imageButton = new Button();
+        imageButton.setPrefSize(200, 150);
+
+        addImageToButton(imageButton);
+        root.getChildren().add(imageButton);
 
         Scene categoryAScene = new Scene(root, 400, 300);
         categoryAStage.setScene(categoryAScene);
