@@ -1,5 +1,7 @@
 package com.example.demo1;
 
+import javafx.application.Platform;
+import javafx.collections.transformation.FilteredList;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
@@ -16,7 +18,7 @@ import javafx.scene.layout.GridPane;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import java.util.ArrayList;
-
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class HelloController extends DataBaseHandler { //ожидает передачи интерфейса, фейкового класса. Но нужно получить объект, который наследуется у интерфейса и нужен класс, который управляет зависимостями у интерфейса.
@@ -100,7 +102,7 @@ public class HelloController extends DataBaseHandler { //ожидает пере
         // Добавляем новые кнопки в зависимости от выбранной категории
         switch (selectedCategory) {
             case "Первое":
-                System.out.println("Первое");
+                addProductComboBox(gridPane);
                 break;
             case "Второе":
                 addEmptyPaneToGrid(gridPane);
@@ -113,6 +115,59 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                 break;
         }
     }
+
+    private void addProductComboBox(GridPane gridPane) {
+        // Создаем новый ComboBox
+        ComboBox<String> productComboBox = new ComboBox<>();
+
+        // Создаем список продуктов
+        ObservableList<String> products = FXCollections.observableArrayList(
+                "Бекон",
+                "Яйцо",
+                "Картофель",
+                "Творог",
+                "Сыр",
+                "Хлеб"
+        );
+
+        // Создаем FilteredList, который будет фильтровать продукты
+        FilteredList<String> filteredProducts = new FilteredList<>(products, p -> true);
+
+        // Устанавливаем FilteredList в качестве элементов ComboBox
+        productComboBox.setItems(filteredProducts);
+
+        // Устанавливаем ComboBox как редактируемый
+        productComboBox.setEditable(true);
+
+        // Добавляем слушатель к свойству textProperty ComboBox
+        productComboBox.getEditor().textProperty().addListener((obs, oldValue, newValue) -> {
+            // Если выбранный элемент равен текущему вводу, то не фильтруем список
+            if (productComboBox.getSelectionModel().getSelectedItem() == null ||
+                    !productComboBox.getSelectionModel().getSelectedItem().equals(productComboBox.getEditor().getText())) {
+                // Фильтруем список продуктов
+                filteredProducts.setPredicate(product -> product.toLowerCase().contains(newValue.toLowerCase()));
+            }
+        });
+
+        // Добавляем ComboBox в GridPane
+        gridPane.add(productComboBox, 0, 0);
+
+        // Устанавливаем обработчик событий для ComboBox
+        productComboBox.setOnAction(e -> {
+            String selectedProduct = productComboBox.getValue();
+            if (selectedProduct != null && !selectedProduct.isEmpty() && products.contains(selectedProduct)) {
+                System.out.println("Выбран продукт: " + selectedProduct);
+                Platform.runLater(() -> {
+                    if (!productComboBox.getItems().isEmpty()) {
+                        productComboBox.getSelectionModel().clearSelection(); // Снятие выбора
+                    }
+                });
+            }
+        });
+
+    }
+
+
 
     public void onCategorySelected(){
         try {
@@ -131,6 +186,8 @@ public class HelloController extends DataBaseHandler { //ожидает пере
             e.printStackTrace();
         }
     }
+
+
 
     public void onBButtonClick() {
         Stage categoryAStage = new Stage();
