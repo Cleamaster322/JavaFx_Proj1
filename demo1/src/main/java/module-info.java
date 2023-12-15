@@ -5,5 +5,6 @@ module com.example.demo1 {
 
 
     opens com.example.demo1 to javafx.fxml;
+    requires org.jsoup;
     exports com.example.demo1;
 }
