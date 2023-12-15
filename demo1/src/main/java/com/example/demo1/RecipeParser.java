@@ -12,11 +12,10 @@ public class RecipeParser {
             Document doc = Jsoup.connect("https://www.povarenok.ru/recipes/show/47352/").get();
 
             // Извлечение информации о рецепте
-            String recipeTitle = doc.select("meta[itemprop=name]").first().text();
-            System.out.println(content.attr("content"));
-            // Вывод информации о рецепте
-            System.out.println("Title: " + recipeTitle);
-
+            Element name = doc.select("h1[itemprop=name]").first();
+            Element description = doc.select("h1[itemprop=description]").first();
+            System.out.println(name.text());
+            System.out.println(description.text());
         } catch (IOException e) {
             e.printStackTrace();
         }
