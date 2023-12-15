@@ -50,11 +50,19 @@ public class RecipeParser {
             String carbohydrates = doc.select("strong[itemprop=carbohydrateContent]").first().text();
 
             //шаги приготовления
-            Elements steps = doc.select("li[itemprop=recipeInstructions]");
+            Elements steps = doc.select("ul[itemprop=recipeInstructions] li");
             ArrayList<String> stepList = new ArrayList<>();
+            ArrayList<String> imageList = new ArrayList<>();
             for (Element step : steps) {
-                String text = step.select("p").first().text();
-                stepList.add(text);
+                Element pElement = step.select("div p").first();
+                if (pElement != null) {
+                    stepList.add(pElement.text());
+                }
+
+                Element aElement = step.select("span a").first();
+                if (aElement != null) {
+                    imageList.add(aElement.attr("href"));
+                }
             }
 
             //вывод, удали меня
@@ -71,8 +79,9 @@ public class RecipeParser {
             System.out.println("Белки: " + protein);
             System.out.println("Жиры: " + fat);
             System.out.println("Углеводы: " + carbohydrates);
-            for (String step : stepList) {
-                System.out.println(step);
+            for (int i = 0; i < stepList.size(); i++) {
+                System.out.println("Шаг: " + stepList.get(i));
+                System.out.println("Ссылка на изображение: " + imageList.get(i));
             }
 
         } catch (IOException e) {
