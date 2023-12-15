@@ -13,7 +13,8 @@ public class RecipeParser {
 
             // Извлечение информации о рецепте
             Element name = doc.select("h1[itemprop=name]").first();
-            Element description = doc.select("h1[itemprop=description]").first();
+            Element description = doc.select("div.article-text[itemprop=description]").first();
+          
             System.out.println(name.text());
             System.out.println(description.text());
         } catch (IOException e) {
