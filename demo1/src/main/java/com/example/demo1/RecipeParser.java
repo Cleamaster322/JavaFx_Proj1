@@ -52,18 +52,27 @@ public class RecipeParser {
             //шаги приготовления
             Elements steps = doc.select("li[itemprop=recipeInstructions]");
             ArrayList<String> stepList = new ArrayList<>();
-            ArrayList<String> imageList = new ArrayList<>();
             for (Element step : steps) {
                 String text = step.select("p").first().text();
                 stepList.add(text);
-
-                String imageUrl = step.select("a[rel=facebox]").first().attr("href");
-                imageList.add(imageUrl);
             }
+
             //вывод, удали меня
-            for (int i = 0; i < stepList.size(); i++) {
-                System.out.println("Шаг: " + stepList.get(i));
-                System.out.println("Ссылка на изображение: " + imageList.get(i));
+            System.out.println(name.text());
+            System.out.println(description.text());
+            for (String category : categoryList) {
+                System.out.println(category);
+            }
+            for (String ingredient : ingredientList) {
+                System.out.println(ingredient);
+            }
+            System.out.println("Время приготовления: " + totalTime);
+            System.out.println("Калории: " + calories);
+            System.out.println("Белки: " + protein);
+            System.out.println("Жиры: " + fat);
+            System.out.println("Углеводы: " + carbohydrates);
+            for (String step : stepList) {
+                System.out.println(step);
             }
 
         } catch (IOException e) {
