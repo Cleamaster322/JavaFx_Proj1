@@ -18,6 +18,10 @@ public class RecipeParser {
             // название
             Element name = doc.select("h1[itemprop=name]").first();
 
+            //главное фото
+            Element mainImg = doc.select("img[itemprop=image]").first();
+            String imageUrl = mainImg.attr("src");
+
             //описание
             Element description = doc.select("div.article-text[itemprop=description]").first();
 
@@ -83,6 +87,7 @@ public class RecipeParser {
                 System.out.println("Шаг: " + stepList.get(i));
                 System.out.println("Ссылка на изображение: " + imageList.get(i));
             }
+            System.out.println(imageUrl);
 
         } catch (IOException e) {
             e.printStackTrace();
