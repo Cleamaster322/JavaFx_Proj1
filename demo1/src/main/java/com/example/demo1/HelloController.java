@@ -2,6 +2,7 @@ package com.example.demo1;
 
 import javafx.application.Platform;
 import javafx.collections.transformation.FilteredList;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
@@ -21,6 +22,7 @@ import javafx.collections.ObservableList;
 
 public class HelloController extends DataBaseHandler { //ожидает передачи интерфейса, фейкового класса. Но нужно получить объект, который наследуется у интерфейса и нужен класс, который управляет зависимостями у интерфейса.
     //паттерн depencity inject
+
 
     ObservableList<String> categories = FXCollections.observableArrayList("Первое", "Второе", "Компот");
     public void onAButtonClick() {
@@ -183,22 +185,20 @@ public class HelloController extends DataBaseHandler { //ожидает пере
     }
 
     private void addImageToButton(Button button) {
-        try {
 
-            String imagePath = "C:\\Users\\Никита Юров\\Desktop\\ДВФУ\\Java-технологии\\pomidor.jpg";
-            Image image = new Image(new FileInputStream(imagePath));
+        RecipeParser recipeParser = new RecipeParser(); //удали меня
+        Recipe recipe = recipeParser.parse("https://www.povarenok.ru/recipes/show/47352/");
+        String imagePath = recipe.getMainPhoto();
+        Image image = new Image(imagePath);
 
-            ImageView imageView = new ImageView(image);
+        ImageView imageView = new ImageView(image);
 
-            imageView.setFitWidth(100);
-            imageView.setFitHeight(100);
+        imageView.setFitWidth(100);
+        imageView.setFitHeight(100);
 
-            button.setGraphic(imageView);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        button.setGraphic(imageView);
+
     }
-
     private VBox favoritesBox = new VBox();
 
     public void onBButtonClick() {
@@ -233,4 +233,46 @@ public class HelloController extends DataBaseHandler { //ожидает пере
 
         categoryAStage.show();
     }
+
+    public void onParser() {
+        RecipeParser recipeParser = new RecipeParser();
+
+        Stage categoryAStage = new Stage();
+        categoryAStage.setTitle("Парсер");
+
+        VBox root = new VBox();
+        root.setSpacing(10);
+        root.setPadding(new Insets(10));
+
+        TextField urlTextField = new TextField();
+        urlTextField.setPromptText("Введите URL рецепта");
+        urlTextField.setPrefWidth(400);
+
+        Button parseButton = new Button("Запустить парсер");
+
+        parseButton.setOnAction(e ->{
+            String url = urlTextField.getText();
+            RecipeParser parser = new RecipeParser();
+            Recipe recipe;
+            if (url.isEmpty()) {
+                // Если строка URL пуста, выводим сообщение об ошибке
+                urlTextField.setStyle("-fx-text-inner-color: red;"); // Устанавливаем красный цвет текста
+                urlTextField.setText("Адрес не найден");
+                return; // Прерываем выполнение обработчика события
+            } else {
+                // Иначе, парсим рецепт
+                recipe = parser.parse(url);
+            }
+            System.out.println(recipe.getName());
+        });
+
+        VBox.setMargin(urlTextField, new Insets(0, 0, 10, 0));
+        root.getChildren().addAll(urlTextField, parseButton);
+
+        Scene categoryAScene = new Scene(root, 600, 500);
+        categoryAStage.setScene(categoryAScene);
+
+        categoryAStage.show();
+    }
+
 }
