@@ -308,6 +308,8 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                 TextField carbohydratesRecipeTextField = new TextField();
                 carbohydratesRecipeTextField.setText(recipe.getCarbohydrates());
 
+                Label nameIngredientList = new Label("Список ингредиентов");
+
                 // Создание TextField для ввода нового ингредиента
                 TextField newIngredientTextField = new TextField();
 
@@ -327,6 +329,53 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                     // Очистка TextField
                     newIngredientTextField.clear();
                 });
+
+                Label nameCookingStepList = new Label("Шаги приготовления");
+
+                // Создание TextField для ввода нового ингредиента
+                TextField newCookingStepTextField = new TextField();
+
+                // Создание ListView для отображения списка ингредиентов
+                ListView<String> cookingStepList = new ListView<>();
+                cookingStepList.getItems().addAll(recipe.getCookingSteps());
+
+                // Создание кнопки для добавления новых ингредиентов
+                Button addCookingStepButton = new Button("+");
+
+                addCookingStepButton.setOnAction(event -> {
+                    // Добавление текста из TextField в ListView
+                    if(!newCookingStepTextField.getText().isEmpty()){
+                        cookingStepList.getItems().add(newCookingStepTextField.getText());
+                    }
+
+                    // Очистка TextField
+                    newCookingStepTextField.clear();
+                });
+
+//                Label namePhotoCookingStepList = new Label("Фото к шагу");
+//
+//                // Создание TextField для ввода нового ингредиента
+//                TextField newPhotoCookingStepTextField = new TextField();
+//
+//                // Создание ListView для отображения списка ингредиентов
+//                ListView<String> photoCookingStepList = new ListView<>();
+//                photoCookingStepList.getItems().addAll(recipe.getCookingPhotoStep());
+//
+//                // Создание кнопки для добавления новых ингредиентов
+//                Button addCookingStepButton = new Button("+");
+//
+//                addCookingStepButton.setOnAction(event -> {
+//                    // Добавление текста из TextField в ListView
+//                    if(!newCookingStepTextField.getText().isEmpty()){
+//                        cookingStepList.getItems().add(newCookingStepTextField.getText());
+//                    }
+//
+//                    // Очистка TextField
+//                    newCookingStepTextField.clear();
+//                });
+
+
+
 
                 Button next = new Button("Далее");
 
@@ -366,11 +415,25 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                 grid.add(carbohydratesRecipeTextLabel, 2, 50);
                 grid.add(carbohydratesRecipeTextField, 2, 52);
 
+                grid.add(nameIngredientList, 2, 54);
+
                 grid.add(newIngredientTextField, 2, 56);
                 grid.add(ingredientsList, 2, 57);
                 grid.add(addIngredientButton, 3, 57);
 
-                grid.add(next, 2,58);
+                grid.add(nameCookingStepList, 2, 59);
+
+                grid.add(newCookingStepTextField, 2, 61);
+                grid.add(cookingStepList, 2, 62);
+                grid.add(addCookingStepButton, 3, 62);
+
+//                grid.add(namePhotoCookingStepList, 2, 64);
+//
+//                grid.add(newPhotoCookingStepTextField, 2, 61);
+//                grid.add(photoCookingStepList, 2, 62);
+//                grid.add(addPhotoCookingStepButton, 3, 62);
+
+                grid.add(next, 2,64);
 
 
                 ScrollPane scrollPane = new ScrollPane(grid);
@@ -390,10 +453,9 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                     recipe.setFat(fatRecipeTextField.getText());
                     recipe.setCarbohydrates(carbohydratesRecipeTextField.getText());
                     recipe.setIngredients(ingredientsList.getItems());
+                    recipe.setCookingSteps(cookingStepList.getItems());
 
                     System.out.println(recipe.getIngredients());
-                    grid.getChildren().clear();
-
                 });
 
 

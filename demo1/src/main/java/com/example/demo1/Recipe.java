@@ -121,4 +121,5 @@ public class Recipe {
     public void setCookingStepsImg(List<String> cookingStepsImg) {
         this.cookingStepsImg = cookingStepsImg;
     }
+
 }
