@@ -6,6 +6,7 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.ArrayList;
 public class RecipeParser {
 
     public Recipe parse(String urlConnect) {
@@ -46,17 +47,19 @@ public class RecipeParser {
 
             // Ингридиенты
             Elements ingredients = doc.select("li[itemprop=recipeIngredient]");
+            ArrayList<String> ingredientList = new ArrayList<>();
             for (Element ingredient : ingredients) {
                 try {
                     String text = ingredient.text();
                     Pattern pattern = Pattern.compile("\\(.*?\\)");
                     Matcher matcher = pattern.matcher(text);
                     text = matcher.replaceAll("").trim();
-                    recipe.getIngredients().add(text);
+                    ingredientList.add(text);
                 } catch (Exception e) {
-                    recipe.getIngredients().add("");
+                    ingredientList.add("");
                 }
             }
+            recipe.setIngredients(ingredientList);
 
             // Время приготовления
             try {
@@ -94,16 +97,30 @@ public class RecipeParser {
             }
 
             Elements steps = doc.select("ul[itemprop=recipeInstructions] li");
+            ArrayList<String> stepList = new ArrayList<>();
+            ArrayList<String> imageList = new ArrayList<>();
+
             for (Element step : steps) {
                 Element pElement = step.select("div p").first();
                 if (pElement != null) {
                     try {
-                        recipe.getCookingSteps().add(pElement.text());
+                        stepList.add(pElement.text());
                     } catch (Exception e) {
-                        recipe.getCookingSteps().add("");
+                        stepList.add("");
+                    }
+                }
+                Element aElement = step.select("span a").first();
+                if (aElement != null) {
+                    try {
+                        imageList.add(pElement.text());
+                    } catch (Exception e) {
+                        imageList.add("");
                     }
                 }
             }
+
+            recipe.setCookingStepsText(stepList);
+            recipe.setCookingStepsImg(imageList);
 
             // Возвращаем объект Recipe
             return recipe;

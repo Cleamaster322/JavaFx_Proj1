@@ -14,12 +14,15 @@ public class Recipe {
     private String protein;
     private String fat;
     private String carbohydrates;
-    private List<String> cookingSteps;
+    private List<String> cookingStepsText;
+
+    private List<String> cookingStepsImg;
 
     // Конструктор для инициализации объекта Recipe
     public Recipe() {
         ingredients = new ArrayList<>();
-        cookingSteps = new ArrayList<>();
+        cookingStepsText = new ArrayList<>();
+        cookingStepsImg =  new ArrayList<>();
     }
 
     // Геттеры и сеттеры для каждого поля
@@ -104,11 +107,18 @@ public class Recipe {
         this.carbohydrates = carbohydrates;
     }
 
-    public List<String> getCookingSteps() {
-        return cookingSteps;
+    public List<String> getCookingStepsText() {
+        return cookingStepsText;
     }
 
-    public void setCookingSteps(List<String> cookingSteps) {
-        this.cookingSteps = cookingSteps;
+    public void setCookingStepsText(List<String> cookingStepsText) {
+        this.cookingStepsText = cookingStepsText;
+    }
+    public List<String> getCookingStepsImg() {
+        return cookingStepsImg;
+    }
+
+    public void setCookingStepsImg(List<String> cookingStepsImg) {
+        this.cookingStepsImg = cookingStepsImg;
     }
 }
