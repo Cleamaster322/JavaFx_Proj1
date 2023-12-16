@@ -284,23 +284,63 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                 categoryRecipeTextField.setText(recipe.getCategories());
 
 
+                Label cookingTimeRecipeTextLabel = new Label("Время приготовления");
+                TextField cookingTimeRecipeTextField = new TextField();
+                cookingTimeRecipeTextField.setText(recipe.getCookingTime());
+
+
+                Label caloriesRecipeTextLabel = new Label("Калории");
+                TextField caloriesRecipeTextField = new TextField();
+                caloriesRecipeTextField.setText(recipe.getCalories());
+
+
+                Label proteinRecipeTextLabel = new Label("Белки");
+                TextField proteinRecipeTextField = new TextField();
+                proteinRecipeTextField.setText(recipe.getProtein());
+
+
+                Label fatRecipeTextLabel = new Label("Жиры");
+                TextField fatRecipeTextField = new TextField();
+                fatRecipeTextField.setText(recipe.getFat());
+
+
+                Label carbohydratesRecipeTextLabel = new Label("Углеводы");
+                TextField carbohydratesRecipeTextField = new TextField();
+                carbohydratesRecipeTextField.setText(recipe.getCarbohydrates());
+
+
+
                 GridPane grid = new GridPane();
                 grid.setHgap(10);
                 grid.setVgap(10);
                 grid.setAlignment(Pos.CENTER);
 
-                grid.add(nameRecipeTextLabel, 0, 2);
-                grid.add(nameRecipeTextField, 0, 4);
+                grid.add(nameRecipeTextLabel, 2, 2);
+                grid.add(nameRecipeTextField, 2, 4);
 
+                grid.add(photoRecipeTextLabel, 2, 8);
+                grid.add(photoRecipeTextField, 2, 10);
 
-                grid.add(photoRecipeTextLabel, 0, 8);
-                grid.add(photoRecipeTextField, 0, 10);
+                grid.add(descriptionRecipeTextLabel, 2, 14);
+                grid.add(descriptionRecipeTextField, 2, 16);
 
-                grid.add(descriptionRecipeTextLabel, 0, 14);
-                grid.add(descriptionRecipeTextField, 0, 16);
+                grid.add(categoryRecipeTextLabel, 2, 20);
+                grid.add(categoryRecipeTextField, 2, 22);
 
-                grid.add(categoryRecipeTextLabel, 0, 20);
-                grid.add(categoryRecipeTextField, 0, 22);
+                grid.add(cookingTimeRecipeTextLabel, 2, 26);
+                grid.add(cookingTimeRecipeTextField, 2, 28);
+
+                grid.add(caloriesRecipeTextLabel, 2, 32);
+                grid.add(caloriesRecipeTextField, 2, 34);
+
+                grid.add(proteinRecipeTextLabel, 2, 38);
+                grid.add(proteinRecipeTextField, 2, 40);
+
+                grid.add(fatRecipeTextLabel, 2, 44);
+                grid.add(fatRecipeTextField, 2, 46);
+
+                grid.add(carbohydratesRecipeTextLabel, 2, 50);
+                grid.add(carbohydratesRecipeTextField, 2, 52);
 
 
                 ScrollPane scrollPane = new ScrollPane(grid);
