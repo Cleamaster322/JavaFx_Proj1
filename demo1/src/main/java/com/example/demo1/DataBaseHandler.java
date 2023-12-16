@@ -48,9 +48,9 @@ public class DataBaseHandler extends RecipeParser{
         return cities;
     }
 
-//    public static void main(String[] args) {
-//        RecipeParser parser = new RecipeParser();
-//        Recipe recipe = parser.parse();
-//        System.out.println(recipe.getCookingSteps());
-//    }
+    public static void main(String[] args) {
+        RecipeParser parser = new RecipeParser();
+        Recipe recipe = parser.parse("https://www.povarenok.ru/recipes/show/47352/");
+        System.out.println(recipe.getCategories());
+    }
 }

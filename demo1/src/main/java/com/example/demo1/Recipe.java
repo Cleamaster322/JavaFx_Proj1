@@ -7,7 +7,7 @@ public class Recipe {
     private String name;
     private String description;
     private String mainPhoto;
-    private List<String> categories;
+    private String categories;
     private List<String> ingredients;
     private String cookingTime;
     private String calories;
@@ -18,7 +18,6 @@ public class Recipe {
 
     // Конструктор для инициализации объекта Recipe
     public Recipe() {
-        categories = new ArrayList<>();
         ingredients = new ArrayList<>();
         cookingSteps = new ArrayList<>();
     }
@@ -49,11 +48,11 @@ public class Recipe {
         this.mainPhoto = mainPhoto;
     }
 
-    public List<String> getCategories() {
+    public String getCategories() {
         return categories;
     }
 
-    public void setCategories(List<String> categories) {
+    public void setCategories(String categories) {
         this.categories = categories;
     }
 

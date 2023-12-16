@@ -38,13 +38,10 @@ public class RecipeParser {
             }
 
             // Категории
-            Elements categories = doc.select("span[itemprop=recipeCategory]");
-            for (Element category : categories) {
-                try {
-                    recipe.getCategories().add(category.text());
-                } catch (Exception e) {
-                    recipe.getCategories().add("");
-                }
+            try {
+                recipe.setCategories(doc.select("span[itemprop=recipeCategory]").first().text());
+            } catch (Exception e) {
+                recipe.setCategories("");
             }
 
             // Ингридиенты
