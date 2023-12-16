@@ -7,7 +7,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-public class DataBaseHandler {
+public class DataBaseHandler extends RecipeParser{
     Properties properties = new Properties();
     Connection dbConnection;
 //    Подключение к базе данных
@@ -47,4 +47,10 @@ public class DataBaseHandler {
 
         return cities;
     }
+
+//    public static void main(String[] args) {
+//        RecipeParser parser = new RecipeParser();
+//        Recipe recipe = parser.parse();
+//        System.out.println(recipe.getCookingSteps());
+//    }
 }

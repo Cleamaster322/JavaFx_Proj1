@@ -4,93 +4,56 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-
 public class RecipeParser {
-    public static void main(String[] args) {
+
+    public Recipe parse() {
         try {
-            // Отправьте HTTP-запрос на URL рецепта
             Document doc = Jsoup.connect("https://www.povarenok.ru/recipes/show/47352/").get();
 
-            // название
-            Element name = doc.select("h1[itemprop=name]").first();
+            // Создаем новый объект Recipe
+            Recipe recipe = new Recipe();
 
-            //главное фото
-            Element mainImg = doc.select("img[itemprop=image]").first();
-            String imageUrl = mainImg.attr("src");
+            // Заполняем поля объекта Recipe
+            recipe.setName(doc.select("h1[itemprop=name]").first().text());
+            recipe.setMainPhoto(doc.select("img[itemprop=image]").first().attr("src"));
+            recipe.setDescription(doc.select("div.article-text[itemprop=description]").first().text());
 
-            //описание
-            Element description = doc.select("div.article-text[itemprop=description]").first();
-
-            //категория
             Elements categories = doc.select("span[itemprop=recipeCategory]");
-            ArrayList<String> categoryList = new ArrayList<>();
             for (Element category : categories) {
-                categoryList.add(category.text());
+                recipe.getCategories().add(category.text());
             }
 
-            //ингридиенты
             Elements ingredients = doc.select("li[itemprop=recipeIngredient]");
-            ArrayList<String> ingredientList = new ArrayList<>();
             for (Element ingredient : ingredients) {
                 String text = ingredient.text();
                 Pattern pattern = Pattern.compile("\\(.*?\\)");
                 Matcher matcher = pattern.matcher(text);
                 text = matcher.replaceAll("").trim();
-                ingredientList.add(text);
+                recipe.getIngredients().add(text);
             }
 
-            //время приготовления
-            Element timeElement = doc.select("time[itemprop=totalTime]").first();
-            String totalTime = timeElement.text();
+            recipe.setCookingTime(doc.select("time[itemprop=totalTime]").first().text());
+            recipe.setCalories(doc.select("strong[itemprop=calories]").first().text());
+            recipe.setProtein(doc.select("strong[itemprop=proteinContent]").first().text());
+            recipe.setFat(doc.select("strong[itemprop=fatContent]").first().text());
+            recipe.setCarbohydrates(doc.select("strong[itemprop=carbohydrateContent]").first().text());
 
-            //бжу
-            String calories = doc.select("strong[itemprop=calories]").first().text();
-            String protein = doc.select("strong[itemprop=proteinContent]").first().text();
-            String fat = doc.select("strong[itemprop=fatContent]").first().text();
-            String carbohydrates = doc.select("strong[itemprop=carbohydrateContent]").first().text();
-
-            //шаги приготовления
             Elements steps = doc.select("ul[itemprop=recipeInstructions] li");
-            ArrayList<String> stepList = new ArrayList<>();
-            ArrayList<String> imageList = new ArrayList<>();
             for (Element step : steps) {
                 Element pElement = step.select("div p").first();
                 if (pElement != null) {
-                    stepList.add(pElement.text());
-                }
-
-                Element aElement = step.select("span a").first();
-                if (aElement != null) {
-                    imageList.add(aElement.attr("href"));
+                    recipe.getCookingSteps().add(pElement.text());
                 }
             }
 
-            //вывод, удали меня
-            System.out.println(name.text());
-            System.out.println(description.text());
-            for (String category : categoryList) {
-                System.out.println(category);
-            }
-            for (String ingredient : ingredientList) {
-                System.out.println(ingredient);
-            }
-            System.out.println("Время приготовления: " + totalTime);
-            System.out.println("Калории: " + calories);
-            System.out.println("Белки: " + protein);
-            System.out.println("Жиры: " + fat);
-            System.out.println("Углеводы: " + carbohydrates);
-            for (int i = 0; i < stepList.size(); i++) {
-                System.out.println("Шаг: " + stepList.get(i));
-                System.out.println("Ссылка на изображение: " + imageList.get(i));
-            }
-            System.out.println(imageUrl);
+            // Возвращаем объект Recipe
+            return recipe;
 
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
     }
 }
