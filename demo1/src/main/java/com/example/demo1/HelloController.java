@@ -330,48 +330,46 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                     newIngredientTextField.clear();
                 });
 
-                Label nameCookingStepList = new Label("Шаги приготовления");
+                Label nameCookingStepListText = new Label("Шаги приготовления");
 
-                // Создание TextField для ввода нового ингредиента
+
                 TextField newCookingStepTextField = new TextField();
 
-                // Создание ListView для отображения списка ингредиентов
+                // Создание ListView для отображения списка текста шагов приготовления
                 ListView<String> cookingStepListText = new ListView<>();
                 cookingStepListText.getItems().addAll(recipe.getCookingStepsText());
 
-                // Создание кнопки для добавления новых ингредиентов
-                Button addCookingStepButton = new Button("+");
+                // Создание кнопки для добавления нового текста шагов приготовления
+                Button addCookingStepTextButton = new Button("+");
 
-                addCookingStepButton.setOnAction(event -> {
+                addCookingStepTextButton.setOnAction(event -> {
                     // Добавление текста из TextField в ListView
                     if(!newCookingStepTextField.getText().isEmpty()){
                         cookingStepListText.getItems().add(newCookingStepTextField.getText());
                     }
-
-                    // Очистка TextField
                     newCookingStepTextField.clear();
                 });
 
                 Label newCoookingStepListImg = new Label("Фото к шагу");
 
                 // Создание TextField для ввода нового ингредиента
-                TextField newPhotoCookingStepTextField = new TextField();
+                TextField newCookingStepListImgField = new TextField();
 
                 // Создание ListView для отображения списка ингредиентов
-                ListView<String> coookingStepListImg = new ListView<>();
-                coookingStepListImg.getItems().addAll(recipe.getCookingStepsImg());
+                ListView<String> cookingStepListImg = new ListView<>();
+                cookingStepListImg.getItems().addAll(recipe.getCookingStepsImg());
 
                 // Создание кнопки для добавления новых ингредиентов
-                Button addCookingPhotoStepButton = new Button("+");
+                Button addCookingStepImgButton = new Button("+");
 
-                addCookingPhotoStepButton.setOnAction(event -> {
+                addCookingStepImgButton.setOnAction(event -> {
                     // Добавление текста из TextField в ListView
                     if(!newCookingStepTextField.getText().isEmpty()){
-                        coookingStepListImg.getItems().add(newCookingStepTextField.getText());
+                        cookingStepListImg.getItems().add(newCookingStepTextField.getText());
                     }
 
                     // Очистка TextField
-                    newPhotoCookingStepTextField.clear();
+                    newCookingStepListImgField.clear();
                 });
 
 
@@ -385,8 +383,6 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                 grid.setHgap(10);
                 grid.setVgap(10);
                 grid.setAlignment(Pos.CENTER);
-
-                // УБРАТЬ ПОТОМ
 
                 grid.add(nameRecipeTextLabel, 2, 2);
                 grid.add(nameRecipeTextField, 2, 4);
@@ -421,17 +417,17 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                 grid.add(ingredientsList, 2, 57);
                 grid.add(addIngredientButton, 3, 57);
 
-                grid.add(nameCookingStepList, 2, 59);
+                grid.add(nameCookingStepListText, 2, 59);
 
                 grid.add(newCookingStepTextField, 2, 61);
                 grid.add(cookingStepListText, 2, 62);
-                grid.add(addCookingStepButton, 3, 62);
+                grid.add(addCookingStepTextButton, 3, 62);
 
                 grid.add(newCoookingStepListImg, 2, 64);
 
-                grid.add(newPhotoCookingStepTextField, 2, 66);
-                grid.add(newCoookingStepListImg, 2, 67);
-                grid.add(addCookingPhotoStepButton, 3, 67);
+                grid.add(newCookingStepListImgField, 2, 66);
+                grid.add(cookingStepListImg, 2, 67);
+                grid.add(addCookingStepImgButton, 3, 67);
 
                 grid.add(next, 2,70);
 
@@ -454,9 +450,9 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                     recipe.setCarbohydrates(carbohydratesRecipeTextField.getText());
                     recipe.setIngredients(ingredientsList.getItems());
                     recipe.setCookingStepsText(cookingStepListText.getItems());
-                    recipe.setCookingStepsImg(coookingStepListImg.getItems());
+                    recipe.setCookingStepsImg(cookingStepListImg.getItems());
 
-                    System.out.println(recipe.getIngredients());
+                    System.out.println(recipe.getCookingStepsImg());
                 });
 
 

@@ -112,7 +112,7 @@ public class RecipeParser {
                 Element aElement = step.select("span a").first();
                 if (aElement != null) {
                     try {
-                        imageList.add(pElement.text());
+                        imageList.add(aElement.attr("href"));
                     } catch (Exception e) {
                         imageList.add("");
                     }
