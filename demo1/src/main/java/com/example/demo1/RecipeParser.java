@@ -17,44 +17,94 @@ public class RecipeParser {
 
             // Заполняем поля объекта Recipe
             // Название
-            recipe.setName(doc.select("h1[itemprop=name]").first().text());
+            try {
+                recipe.setName(doc.select("h1[itemprop=name]").first().text());
+            } catch (Exception e) {
+                recipe.setName("");
+            }
 
             // Главное фото
-            recipe.setMainPhoto(doc.select("img[itemprop=image]").first().attr("src"));
+            try {
+                recipe.setMainPhoto(doc.select("img[itemprop=image]").first().attr("src"));
+            } catch (Exception e) {
+                recipe.setMainPhoto("");
+            }
 
             // Описание
-            recipe.setDescription(doc.select("div.article-text[itemprop=description]").first().text());
+            try {
+                recipe.setDescription(doc.select("div.article-text[itemprop=description]").first().text());
+            } catch (Exception e) {
+                recipe.setDescription("");
+            }
 
             // Категории
             Elements categories = doc.select("span[itemprop=recipeCategory]");
             for (Element category : categories) {
-                recipe.getCategories().add(category.text());
+                try {
+                    recipe.getCategories().add(category.text());
+                } catch (Exception e) {
+                    recipe.getCategories().add("");
+                }
             }
 
             // Ингридиенты
             Elements ingredients = doc.select("li[itemprop=recipeIngredient]");
             for (Element ingredient : ingredients) {
-                String text = ingredient.text();
-                Pattern pattern = Pattern.compile("\\(.*?\\)");
-                Matcher matcher = pattern.matcher(text);
-                text = matcher.replaceAll("").trim();
-                recipe.getIngredients().add(text);
+                try {
+                    String text = ingredient.text();
+                    Pattern pattern = Pattern.compile("\\(.*?\\)");
+                    Matcher matcher = pattern.matcher(text);
+                    text = matcher.replaceAll("").trim();
+                    recipe.getIngredients().add(text);
+                } catch (Exception e) {
+                    recipe.getIngredients().add("");
+                }
             }
 
             // Время приготовления
-            recipe.setCookingTime(doc.select("time[itemprop=totalTime]").first().text());
+            try {
+                recipe.setCookingTime(doc.select("time[itemprop=totalTime]").first().text());
+            } catch (Exception e) {
+                recipe.setCookingTime("");
+            }
 
-            //
-            recipe.setCalories(doc.select("strong[itemprop=calories]").first().text());
-            recipe.setProtein(doc.select("strong[itemprop=proteinContent]").first().text());
-            recipe.setFat(doc.select("strong[itemprop=fatContent]").first().text());
-            recipe.setCarbohydrates(doc.select("strong[itemprop=carbohydrateContent]").first().text());
+            // Калории
+            try {
+                recipe.setCalories(doc.select("strong[itemprop=calories]").first().text());
+            } catch (Exception e) {
+                recipe.setCalories("");
+            }
+
+            // Белки
+            try {
+                recipe.setProtein(doc.select("strong[itemprop=proteinContent]").first().text());
+            } catch (Exception e) {
+                recipe.setProtein("");
+            }
+
+            // Жиры
+            try {
+                recipe.setFat(doc.select("strong[itemprop=fatContent]").first().text());
+            } catch (Exception e) {
+                recipe.setFat("");
+            }
+
+            // Углеводы
+            try {
+                recipe.setCarbohydrates(doc.select("strong[itemprop=carbohydrateContent]").first().text());
+            } catch (Exception e) {
+                recipe.setCarbohydrates("");
+            }
 
             Elements steps = doc.select("ul[itemprop=recipeInstructions] li");
             for (Element step : steps) {
                 Element pElement = step.select("div p").first();
                 if (pElement != null) {
-                    recipe.getCookingSteps().add(pElement.text());
+                    try {
+                        recipe.getCookingSteps().add(pElement.text());
+                    } catch (Exception e) {
+                        recipe.getCookingSteps().add("");
+                    }
                 }
             }
 
