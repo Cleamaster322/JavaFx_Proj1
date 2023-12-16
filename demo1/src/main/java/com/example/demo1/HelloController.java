@@ -308,12 +308,15 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                 TextField carbohydratesRecipeTextField = new TextField();
                 carbohydratesRecipeTextField.setText(recipe.getCarbohydrates());
 
+                Button next = new Button("Далее");
 
+                next.setPrefSize(50, 50);
 
                 GridPane grid = new GridPane();
                 grid.setHgap(10);
                 grid.setVgap(10);
                 grid.setAlignment(Pos.CENTER);
+
 
                 grid.add(nameRecipeTextLabel, 2, 2);
                 grid.add(nameRecipeTextField, 2, 4);
@@ -342,12 +345,52 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                 grid.add(carbohydratesRecipeTextLabel, 2, 50);
                 grid.add(carbohydratesRecipeTextField, 2, 52);
 
+                grid.add(next, 2,56);
+
 
                 ScrollPane scrollPane = new ScrollPane(grid);
 
                 Scene scene = new Scene(scrollPane, 800, 600);
                 categoryAStage.setScene(scene);
                 categoryAStage.show();
+
+                next.setOnAction(p -> {
+                    recipe.setName(nameRecipeTextField.getText());
+                    recipe.setMainPhoto(photoRecipeTextField.getText());
+                    recipe.setDescription(descriptionRecipeTextField.getText());
+                    recipe.setCategories(categoryRecipeTextField.getText());
+                    recipe.setCookingTime(cookingTimeRecipeTextField.getText());
+                    recipe.setCalories(caloriesRecipeTextField.getText());
+                    recipe.setProtein(proteinRecipeTextField.getText());
+                    recipe.setFat(fatRecipeTextField.getText());
+                    recipe.setCarbohydrates(carbohydratesRecipeTextField.getText());
+
+                    grid.getChildren().clear();
+
+                    // Создание списка для ингредиентов
+                    ListView<String> ingredientsList = new ListView<>();
+
+
+                    for (String ingredient : recipe.getIngredients()) {
+                        ingredientsList.getItems().add(ingredient);
+                    }
+
+                    grid.add(ingredientsList, 2, 0);
+
+                    // Создание кнопки для добавления новых ингредиентов
+                    Button addIngredientButton = new Button("+");
+
+                    addIngredientButton.setOnAction(event -> {
+                        // Создание нового текстового поля для ввода ингредиента
+                        TextField newIngredientTextField = new TextField();
+
+                        // Добавление текстового поля в GridPane
+                        grid.add(newIngredientTextField, 2, grid.getChildren().size() + 1);
+                    });
+
+                    grid.add(addIngredientButton, 3, grid.getChildren().size() + 1);
+
+                });
             } else {
                 System.out.println("Не удалось получить информацию о рецепте.");
             }
