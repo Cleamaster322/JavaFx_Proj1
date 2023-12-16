@@ -25,6 +25,7 @@ public class HelloController extends DataBaseHandler { //ожидает пере
 
 
     ObservableList<String> categories = FXCollections.observableArrayList("Первое", "Второе", "Компот");
+
     public void onAButtonClick() {
         Stage categoryAStage = new Stage();
         categoryAStage.setTitle("Блюда");
@@ -86,7 +87,7 @@ public class HelloController extends DataBaseHandler { //ожидает пере
         }
     }
 
-    private void addFavoriteButtonAction(Button selectedButton){
+    private void addFavoriteButtonAction(Button selectedButton) {
         Button clonedButton = new Button(selectedButton.getText());
         favoritesBox.getChildren().add(clonedButton);
     }
@@ -199,6 +200,7 @@ public class HelloController extends DataBaseHandler { //ожидает пере
         button.setGraphic(imageView);
 
     }
+
     private VBox favoritesBox = new VBox();
 
     public void onBButtonClick() {
@@ -235,8 +237,6 @@ public class HelloController extends DataBaseHandler { //ожидает пере
     }
 
     public void onParser() {
-        RecipeParser recipeParser = new RecipeParser();
-
         Stage categoryAStage = new Stage();
         categoryAStage.setTitle("Парсер");
 
@@ -250,28 +250,72 @@ public class HelloController extends DataBaseHandler { //ожидает пере
 
         Button parseButton = new Button("Запустить парсер");
 
-        parseButton.setOnAction(e ->{
+        parseButton.setOnAction(e -> {
             String url = urlTextField.getText();
             RecipeParser parser = new RecipeParser();
             Recipe recipe;
+
             if (url.isEmpty()) {
-                // Если строка URL пуста, выводим сообщение об ошибке
-                urlTextField.setStyle("-fx-text-inner-color: red;"); // Устанавливаем красный цвет текста
+                urlTextField.setStyle("-fx-text-inner-color: red;");
                 urlTextField.setText("Адрес не найден");
-                return; // Прерываем выполнение обработчика события
+                return;
             } else {
-                // Иначе, парсим рецепт
                 recipe = parser.parse(url);
             }
-            System.out.println(recipe.getName());
+
+            if (recipe != null) {
+
+                Label nameRecipeTextLabel = new Label("Название");
+                TextField nameRecipeTextField = new TextField();
+                nameRecipeTextField.setText(recipe.getName());
+
+
+                Label photoRecipeTextLabel = new Label("Главное фото");
+                TextField photoRecipeTextField = new TextField();
+                photoRecipeTextField.getText();
+
+                Label descriptionRecipeTextLabel = new Label("Описание");
+                TextField descriptionRecipeTextField = new TextField();
+                descriptionRecipeTextField.setText(recipe.getDescription());
+
+
+                Label categoryRecipeTextLabel = new Label("Категории");
+                TextField categoryRecipeTextField = new TextField();
+                categoryRecipeTextField.setText(recipe.getCategories());
+
+
+                GridPane grid = new GridPane();
+                grid.setHgap(10);
+                grid.setVgap(10);
+                grid.setAlignment(Pos.CENTER);
+
+                grid.add(nameRecipeTextLabel, 0, 2);
+                grid.add(nameRecipeTextField, 0, 4);
+
+
+                grid.add(photoRecipeTextLabel, 0, 8);
+                grid.add(photoRecipeTextField, 0, 10);
+
+                grid.add(descriptionRecipeTextLabel, 0, 14);
+                grid.add(descriptionRecipeTextField, 0, 16);
+
+                grid.add(categoryRecipeTextLabel, 0, 20);
+                grid.add(categoryRecipeTextField, 0, 22);
+
+
+                ScrollPane scrollPane = new ScrollPane(grid);
+
+                Scene scene = new Scene(scrollPane, 800, 600);
+                categoryAStage.setScene(scene);
+                categoryAStage.show();
+            } else {
+                System.out.println("Не удалось получить информацию о рецепте.");
+            }
         });
 
-        VBox.setMargin(urlTextField, new Insets(0, 0, 10, 0));
         root.getChildren().addAll(urlTextField, parseButton);
-
-        Scene categoryAScene = new Scene(root, 600, 500);
+        Scene categoryAScene = new Scene(root, 800, 700);
         categoryAStage.setScene(categoryAScene);
-
         categoryAStage.show();
     }
 
