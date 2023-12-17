@@ -452,7 +452,8 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                     recipe.setCookingStepsText(cookingStepListText.getItems());
                     recipe.setCookingStepsImg(cookingStepListImg.getItems());
 
-                    System.out.println(recipe.getCookingStepsImg());
+                    DataBaseHandler test = new DataBaseHandler();
+                    test.createRecipe(recipe);
                 });
 
 

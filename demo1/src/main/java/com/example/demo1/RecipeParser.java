@@ -70,28 +70,32 @@ public class RecipeParser {
 
             // Калории
             try {
-                recipe.setCalories(doc.select("strong[itemprop=calories]").first().text());
+                String[] calories = doc.select("strong[itemprop=calories]").first().text().split(" ");
+                recipe.setCalories(calories[0]);
             } catch (Exception e) {
                 recipe.setCalories("");
             }
 
             // Белки
             try {
-                recipe.setProtein(doc.select("strong[itemprop=proteinContent]").first().text());
+                String[] protein = doc.select("strong[itemprop=proteinContent]").first().text().split(" ");
+                recipe.setProtein(protein[0]);
             } catch (Exception e) {
                 recipe.setProtein("");
             }
 
             // Жиры
             try {
-                recipe.setFat(doc.select("strong[itemprop=fatContent]").first().text());
+                String[] fat = doc.select("strong[itemprop=fatContent]").first().text().split(" ");
+                recipe.setFat(fat[0]);
             } catch (Exception e) {
                 recipe.setFat("");
             }
 
             // Углеводы
             try {
-                recipe.setCarbohydrates(doc.select("strong[itemprop=carbohydrateContent]").first().text());
+                String[] carbohydrates = doc.select("strong[itemprop=carbohydrateContent]").first().text().split(" ");
+                recipe.setCarbohydrates(carbohydrates[0]);
             } catch (Exception e) {
                 recipe.setCarbohydrates("");
             }
