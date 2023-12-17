@@ -67,12 +67,12 @@ public class DataBaseHandler{
             String[] words = ingredient.split(" — ");
             //Проверка есть ли такой продукт в бд
             try (PreparedStatement statement = getDbConnection().prepareStatement("SELECT * FROM products WHERE name LIKE ?")) {
-                statement.setString(1, "%" + words[0] + "%");
+                statement.setString(1, "%" + words[0].trim() + "%");
                 ResultSet resultSet = statement.executeQuery();
                 //Если нет то дабавляем ее
                 if (!resultSet.next()) {
                     PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO products (name) VALUES (?)");
-                    insertStatement.setString(1, words[0]);
+                    insertStatement.setString(1, words[0].trim());
                     insertStatement.executeUpdate();
                 } else {
                     System.out.println("Уже есть такой продукт");
@@ -107,17 +107,20 @@ public class DataBaseHandler{
         }
     }
     public void createStructure(Recipe recipe){
+        System.out.println(recipe.getIngredients());
         for (String ingredient : recipe.getIngredients()) {
             String[] words = ingredient.split(" — ");
             if (words.length == 1){
                 words = Arrays.copyOf(words, words.length + 1);
+                words[0] = words[0].trim();
                 words[1] = "";
             }
+            System.out.println(words[0] + "!!!!!!" + words[1]);
             try(PreparedStatement statement = getDbConnection().prepareStatement("SELECT * FROM structure " +
                                                                                 "WHERE foodID = (SELECT food.id FROM food where name = ?) " +
                                                                                 "AND productID = (SELECT products.id FROM products where name = ?)")){
                 statement.setString(1, recipe.getName());
-                statement.setString(2, words[0]);
+                statement.setString(2, words[0].trim());
                 ResultSet resultSet = statement.executeQuery();
                 if(!resultSet.next()) {
                     PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO structure (foodID, productID, countMeasurement) " +
@@ -126,7 +129,7 @@ public class DataBaseHandler{
                                                                                             ",?)");
 
                     insertStatement.setString(1, recipe.getName());
-                    insertStatement.setString(2, words[0]);
+                    insertStatement.setString(2, words[0].trim());
                     insertStatement.setString(3, words[1]);
                     insertStatement.executeUpdate();
                 } else {
