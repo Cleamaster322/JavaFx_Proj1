@@ -7,20 +7,22 @@ public class Recipe {
     private String name;
     private String description;
     private String mainPhoto;
-    private List<String> categories;
+    private String categories;
     private List<String> ingredients;
     private String cookingTime;
     private String calories;
     private String protein;
     private String fat;
     private String carbohydrates;
-    private List<String> cookingSteps;
+    private List<String> cookingStepsText;
+
+    private List<String> cookingStepsImg;
 
     // Конструктор для инициализации объекта Recipe
     public Recipe() {
-        categories = new ArrayList<>();
         ingredients = new ArrayList<>();
-        cookingSteps = new ArrayList<>();
+        cookingStepsText = new ArrayList<>();
+        cookingStepsImg =  new ArrayList<>();
     }
 
     // Геттеры и сеттеры для каждого поля
@@ -49,11 +51,11 @@ public class Recipe {
         this.mainPhoto = mainPhoto;
     }
 
-    public List<String> getCategories() {
+    public String getCategories() {
         return categories;
     }
 
-    public void setCategories(List<String> categories) {
+    public void setCategories(String categories) {
         this.categories = categories;
     }
 
@@ -105,11 +107,19 @@ public class Recipe {
         this.carbohydrates = carbohydrates;
     }
 
-    public List<String> getCookingSteps() {
-        return cookingSteps;
+    public List<String> getCookingStepsText() {
+        return cookingStepsText;
     }
 
-    public void setCookingSteps(List<String> cookingSteps) {
-        this.cookingSteps = cookingSteps;
+    public void setCookingStepsText(List<String> cookingStepsText) {
+        this.cookingStepsText = cookingStepsText;
     }
+    public List<String> getCookingStepsImg() {
+        return cookingStepsImg;
+    }
+
+    public void setCookingStepsImg(List<String> cookingStepsImg) {
+        this.cookingStepsImg = cookingStepsImg;
+    }
+
 }

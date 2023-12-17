@@ -19,7 +19,7 @@
     <Button onAction="#onAButtonClick" text="Блюда" />
     <Button onAction="#onBButtonClick" text="Избранное" />
     <Button onAction="#onCButtonClick" text="Корзина" />
-
+    <Button onAction="#onParser" text="Парсер"/>
 
 
 </VBox>

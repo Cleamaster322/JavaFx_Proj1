@@ -2,6 +2,7 @@ package com.example.demo1;
 
 import javafx.application.Platform;
 import javafx.collections.transformation.FilteredList;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
@@ -22,7 +23,9 @@ import javafx.collections.ObservableList;
 public class HelloController extends DataBaseHandler { //ожидает передачи интерфейса, фейкового класса. Но нужно получить объект, который наследуется у интерфейса и нужен класс, который управляет зависимостями у интерфейса.
     //паттерн depencity inject
 
+
     ObservableList<String> categories = FXCollections.observableArrayList("Первое", "Второе", "Компот");
+
     public void onAButtonClick() {
         Stage categoryAStage = new Stage();
         categoryAStage.setTitle("Блюда");
@@ -84,7 +87,7 @@ public class HelloController extends DataBaseHandler { //ожидает пере
         }
     }
 
-    private void addFavoriteButtonAction(Button selectedButton){
+    private void addFavoriteButtonAction(Button selectedButton) {
         Button clonedButton = new Button(selectedButton.getText());
         favoritesBox.getChildren().add(clonedButton);
     }
@@ -183,20 +186,19 @@ public class HelloController extends DataBaseHandler { //ожидает пере
     }
 
     private void addImageToButton(Button button) {
-        try {
 
-            String imagePath = "C:\\Users\\Никита Юров\\Desktop\\ДВФУ\\Java-технологии\\pomidor.jpg";
-            Image image = new Image(new FileInputStream(imagePath));
+        RecipeParser recipeParser = new RecipeParser(); //удали меня
+        Recipe recipe = recipeParser.parse("https://www.povarenok.ru/recipes/show/47352/");
+        String imagePath = recipe.getMainPhoto();
+        Image image = new Image(imagePath);
 
-            ImageView imageView = new ImageView(image);
+        ImageView imageView = new ImageView(image);
 
-            imageView.setFitWidth(100);
-            imageView.setFitHeight(100);
+        imageView.setFitWidth(100);
+        imageView.setFitHeight(100);
 
-            button.setGraphic(imageView);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        button.setGraphic(imageView);
+
     }
 
     private VBox favoritesBox = new VBox();
@@ -233,4 +235,237 @@ public class HelloController extends DataBaseHandler { //ожидает пере
 
         categoryAStage.show();
     }
+
+    public void onParser() {
+        Stage categoryAStage = new Stage();
+        categoryAStage.setTitle("Парсер");
+
+        VBox root = new VBox();
+        root.setSpacing(10);
+        root.setPadding(new Insets(10));
+
+        TextField urlTextField = new TextField();
+        urlTextField.setPromptText("Введите URL рецепта");
+        urlTextField.setPrefWidth(400);
+
+        Button parseButton = new Button("Запустить парсер");
+
+        parseButton.setOnAction(e -> {
+            String url = urlTextField.getText();
+            RecipeParser parser = new RecipeParser();
+            Recipe recipe;
+
+            if (url.isEmpty()) {
+                urlTextField.setStyle("-fx-text-inner-color: red;");
+                urlTextField.setText("Адрес не найден");
+                return;
+            } else {
+                recipe = parser.parse(url);
+            }
+
+            if (recipe != null) {
+
+                Label nameRecipeTextLabel = new Label("Название");
+                TextField nameRecipeTextField = new TextField();
+                nameRecipeTextField.setText(recipe.getName());
+
+
+                Label photoRecipeTextLabel = new Label("Главное фото");
+                TextField photoRecipeTextField = new TextField();
+                photoRecipeTextField.setText(recipe.getMainPhoto());
+
+                Label descriptionRecipeTextLabel = new Label("Описание");
+                TextField descriptionRecipeTextField = new TextField();
+                descriptionRecipeTextField.setText(recipe.getDescription());
+
+
+                Label categoryRecipeTextLabel = new Label("Категории");
+                TextField categoryRecipeTextField = new TextField();
+                categoryRecipeTextField.setText(recipe.getCategories());
+
+
+                Label cookingTimeRecipeTextLabel = new Label("Время приготовления");
+                TextField cookingTimeRecipeTextField = new TextField();
+                cookingTimeRecipeTextField.setText(recipe.getCookingTime());
+
+
+                Label caloriesRecipeTextLabel = new Label("Калории");
+                TextField caloriesRecipeTextField = new TextField();
+                caloriesRecipeTextField.setText(recipe.getCalories());
+
+
+                Label proteinRecipeTextLabel = new Label("Белки");
+                TextField proteinRecipeTextField = new TextField();
+                proteinRecipeTextField.setText(recipe.getProtein());
+
+
+                Label fatRecipeTextLabel = new Label("Жиры");
+                TextField fatRecipeTextField = new TextField();
+                fatRecipeTextField.setText(recipe.getFat());
+
+
+                Label carbohydratesRecipeTextLabel = new Label("Углеводы");
+                TextField carbohydratesRecipeTextField = new TextField();
+                carbohydratesRecipeTextField.setText(recipe.getCarbohydrates());
+
+                Label nameIngredientList = new Label("Список ингредиентов");
+
+                // Создание TextField для ввода нового ингредиента
+                TextField newIngredientTextField = new TextField();
+
+                // Создание ListView для отображения списка ингредиентов
+                ListView<String> ingredientsList = new ListView<>();
+                ingredientsList.getItems().addAll(recipe.getIngredients());
+
+                // Создание кнопки для добавления новых ингредиентов
+                Button addIngredientButton = new Button("+");
+
+                addIngredientButton.setOnAction(event -> {
+                    // Добавление текста из TextField в ListView
+                    if(!newIngredientTextField.getText().isEmpty()){
+                        ingredientsList.getItems().add(newIngredientTextField.getText());
+                    }
+
+                    // Очистка TextField
+                    newIngredientTextField.clear();
+                });
+
+                Label nameCookingStepListText = new Label("Шаги приготовления");
+
+
+                TextField newCookingStepTextField = new TextField();
+
+                // Создание ListView для отображения списка текста шагов приготовления
+                ListView<String> cookingStepListText = new ListView<>();
+                cookingStepListText.getItems().addAll(recipe.getCookingStepsText());
+
+                // Создание кнопки для добавления нового текста шагов приготовления
+                Button addCookingStepTextButton = new Button("+");
+
+                addCookingStepTextButton.setOnAction(event -> {
+                    // Добавление текста из TextField в ListView
+                    if(!newCookingStepTextField.getText().isEmpty()){
+                        cookingStepListText.getItems().add(newCookingStepTextField.getText());
+                    }
+                    newCookingStepTextField.clear();
+                });
+
+                Label newCoookingStepListImg = new Label("Фото к шагу");
+
+                // Создание TextField для ввода нового ингредиента
+                TextField newCookingStepListImgField = new TextField();
+
+                // Создание ListView для отображения списка ингредиентов
+                ListView<String> cookingStepListImg = new ListView<>();
+                cookingStepListImg.getItems().addAll(recipe.getCookingStepsImg());
+
+                // Создание кнопки для добавления новых ингредиентов
+                Button addCookingStepImgButton = new Button("+");
+
+                addCookingStepImgButton.setOnAction(event -> {
+                    // Добавление текста из TextField в ListView
+                    if(!newCookingStepTextField.getText().isEmpty()){
+                        cookingStepListImg.getItems().add(newCookingStepTextField.getText());
+                    }
+
+                    // Очистка TextField
+                    newCookingStepListImgField.clear();
+                });
+
+
+
+
+                Button next = new Button("Далее");
+
+                next.setPrefSize(50, 50);
+
+                GridPane grid = new GridPane();
+                grid.setHgap(10);
+                grid.setVgap(10);
+                grid.setAlignment(Pos.CENTER);
+
+                grid.add(nameRecipeTextLabel, 2, 2);
+                grid.add(nameRecipeTextField, 2, 4);
+
+                grid.add(photoRecipeTextLabel, 2, 8);
+                grid.add(photoRecipeTextField, 2, 10);
+
+                grid.add(descriptionRecipeTextLabel, 2, 14);
+                grid.add(descriptionRecipeTextField, 2, 16);
+
+                grid.add(categoryRecipeTextLabel, 2, 20);
+                grid.add(categoryRecipeTextField, 2, 22);
+
+                grid.add(cookingTimeRecipeTextLabel, 2, 26);
+                grid.add(cookingTimeRecipeTextField, 2, 28);
+
+                grid.add(caloriesRecipeTextLabel, 2, 32);
+                grid.add(caloriesRecipeTextField, 2, 34);
+
+                grid.add(proteinRecipeTextLabel, 2, 38);
+                grid.add(proteinRecipeTextField, 2, 40);
+
+                grid.add(fatRecipeTextLabel, 2, 44);
+                grid.add(fatRecipeTextField, 2, 46);
+
+                grid.add(carbohydratesRecipeTextLabel, 2, 50);
+                grid.add(carbohydratesRecipeTextField, 2, 52);
+
+                grid.add(nameIngredientList, 2, 54);
+
+                grid.add(newIngredientTextField, 2, 56);
+                grid.add(ingredientsList, 2, 57);
+                grid.add(addIngredientButton, 3, 57);
+
+                grid.add(nameCookingStepListText, 2, 59);
+
+                grid.add(newCookingStepTextField, 2, 61);
+                grid.add(cookingStepListText, 2, 62);
+                grid.add(addCookingStepTextButton, 3, 62);
+
+                grid.add(newCoookingStepListImg, 2, 64);
+
+                grid.add(newCookingStepListImgField, 2, 66);
+                grid.add(cookingStepListImg, 2, 67);
+                grid.add(addCookingStepImgButton, 3, 67);
+
+                grid.add(next, 2,70);
+
+
+                ScrollPane scrollPane = new ScrollPane(grid);
+
+                Scene scene = new Scene(scrollPane, 800, 600);
+                categoryAStage.setScene(scene);
+                categoryAStage.show();
+
+                next.setOnAction(p -> {
+                    recipe.setName(nameRecipeTextField.getText());
+                    recipe.setMainPhoto(photoRecipeTextField.getText());
+                    recipe.setDescription(descriptionRecipeTextField.getText());
+                    recipe.setCategories(categoryRecipeTextField.getText());
+                    recipe.setCookingTime(cookingTimeRecipeTextField.getText());
+                    recipe.setCalories(caloriesRecipeTextField.getText());
+                    recipe.setProtein(proteinRecipeTextField.getText());
+                    recipe.setFat(fatRecipeTextField.getText());
+                    recipe.setCarbohydrates(carbohydratesRecipeTextField.getText());
+                    recipe.setIngredients(ingredientsList.getItems());
+                    recipe.setCookingStepsText(cookingStepListText.getItems());
+                    recipe.setCookingStepsImg(cookingStepListImg.getItems());
+
+                    DataBaseHandler test = new DataBaseHandler();
+                    test.createRecipe(recipe);
+                });
+
+
+            } else {
+                System.out.println("Не удалось получить информацию о рецепте.");
+            }
+        });
+
+        root.getChildren().addAll(urlTextField, parseButton);
+        Scene categoryAScene = new Scene(root, 800, 700);
+        categoryAStage.setScene(categoryAScene);
+        categoryAStage.show();
+    }
+
 }
