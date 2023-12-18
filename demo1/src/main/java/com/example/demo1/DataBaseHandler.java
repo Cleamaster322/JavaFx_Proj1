@@ -89,13 +89,14 @@ public class DataBaseHandler{
             ResultSet resultSet = statement.executeQuery();
             //Если нет то дабавляем ее
             if (!resultSet.next()) {
-                PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO food (name,categoryID,imgFood,cookTime) " +
+                PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO food (name,categoryID,imgFood,cookTime,mainDescription) " +
                                                                                             "VALUES (?,(SELECT id FROM category where category.name = ?)" +
-                                                                                            ",?,?)");
+                                                                                            ",?,?,?)");
                 insertStatement.setString(1, recipe.getName());
                 insertStatement.setString(2,recipe.getCategories());
                 insertStatement.setString(3,recipe.getMainPhoto());
                 insertStatement.setString(4,recipe.getCookingTime());
+                insertStatement.setString(5,recipe.getDescription());
                 insertStatement.executeUpdate();
             } else {
                 System.out.println("Уже есть такое блюдо");
@@ -263,7 +264,22 @@ public class DataBaseHandler{
 
         return resultSet.getString(1);
     }
+    public String getFoodCategory(int id) throws SQLException{
+        PreparedStatement stmt = dbConnection.prepareStatement("SELECT name FROM category WHERE id = (SELECT categoryID FROM food WHERE id = ?)");
+        stmt.setInt(1, id);
+        ResultSet resultSet = stmt.executeQuery();
+        resultSet.next();
 
+        return resultSet.getString(1);
+    }
+    public String getFoodCookTime(int id) throws SQLException{
+        PreparedStatement stmt = dbConnection.prepareStatement("SELECT cookTime FROM food WHERE id = ?");
+        stmt.setInt(1, id);
+        ResultSet resultSet = stmt.executeQuery();
+        resultSet.next();
+
+        return resultSet.getString(1);
+    }
     public List<Recipe> getAllRecipe() throws SQLException {
         List<Recipe> recipes = new ArrayList<>();
         List<Integer> ids = getFoodIds();
@@ -272,6 +288,9 @@ public class DataBaseHandler{
             Recipe recipe = new Recipe();
             recipe.setName(getFoodName(id));
             recipe.setMainPhoto(getFoodMainPhoto(id));
+            recipe.setCategories(getFoodCategory(id));
+            recipe.setCookingTime(getFoodCookTime(id));
+
             recipes.add(recipe);
         }
 
@@ -284,7 +303,9 @@ public class DataBaseHandler{
         DataBaseHandler d = new DataBaseHandler();
         List<Recipe> recipes = d.getAllRecipe();
         for(Recipe recipe: recipes){
-            System.out.println(recipe.getName()+" " + recipe.getMainPhoto()+ "\n");
+            System.out.println(recipe.getName()+"\n " + recipe.getMainPhoto()+ "\n"
+            + recipe.getCategories() + "\n" + recipe.getCookingTime());
+            System.out.println("*********************************************************");
         }
 
     }
