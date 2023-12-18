@@ -280,6 +280,84 @@ public class DataBaseHandler{
 
         return resultSet.getString(1);
     }
+    public String getFoodDescription(int id) throws SQLException{
+        PreparedStatement stmt = dbConnection.prepareStatement("SELECT mainDescription FROM food WHERE id = ?");
+        stmt.setInt(1, id);
+        ResultSet resultSet = stmt.executeQuery();
+        resultSet.next();
+
+        return resultSet.getString(1);
+    }
+
+    public List<String> getFoodIngredients(int id) throws  SQLException{
+        List<String> ingredients = new ArrayList<>();
+        PreparedStatement stmt = dbConnection.prepareStatement("SELECT products.name FROM java.structure " +
+                                                                    "JOIN products ON java.structure.productID = products.id " +
+                                                                    "WHERE java.structure.foodID = ?");
+        stmt.setInt(1, id);
+        ResultSet resultSet = stmt.executeQuery();
+        while (resultSet.next()) {
+            ingredients.add(resultSet.getString(1));
+        }
+
+        return ingredients;
+    }
+    public String getFoodCalories(int id) throws SQLException{
+        PreparedStatement stmt = dbConnection.prepareStatement("SELECT calories FROM caloric WHERE id = ?");
+        stmt.setInt(1, id);
+        ResultSet resultSet = stmt.executeQuery();
+        resultSet.next();
+
+        return resultSet.getString(1);
+    }
+    public String getFoodProtein(int id) throws SQLException{
+        PreparedStatement stmt = dbConnection.prepareStatement("SELECT proteins FROM caloric WHERE id = ?");
+        stmt.setInt(1, id);
+        ResultSet resultSet = stmt.executeQuery();
+        resultSet.next();
+
+        return resultSet.getString(1);
+    }
+    public String getFoodFat(int id) throws SQLException{
+        PreparedStatement stmt = dbConnection.prepareStatement("SELECT fats FROM caloric WHERE id = ?");
+        stmt.setInt(1, id);
+        ResultSet resultSet = stmt.executeQuery();
+        resultSet.next();
+
+        return resultSet.getString(1);
+    }
+    public String getFoodCarbohydrates(int id) throws SQLException{
+        PreparedStatement stmt = dbConnection.prepareStatement("SELECT Carbohydrates FROM caloric WHERE id = ?");
+        stmt.setInt(1, id);
+        ResultSet resultSet = stmt.executeQuery();
+        resultSet.next();
+
+        return resultSet.getString(1);
+    }
+    public List<String> getFoodCookingStepsText(int id) throws  SQLException{
+        List<String> FoodCookingStepsText = new ArrayList<>();
+        PreparedStatement stmt = dbConnection.prepareStatement("SELECT description FROM java.preparation WHERE foodID = ?");
+        stmt.setInt(1, id);
+        ResultSet resultSet = stmt.executeQuery();
+        while (resultSet.next()) {
+            FoodCookingStepsText.add(resultSet.getString(1));
+        }
+
+        return FoodCookingStepsText;
+    }    public List<String> getFoodCookingStepsImg(int id) throws  SQLException{
+        List<String> FoodCookingStepsImg = new ArrayList<>();
+        PreparedStatement stmt = dbConnection.prepareStatement("SELECT preparation.img FROM java.preparation WHERE foodID = ?");
+        stmt.setInt(1, id);
+        ResultSet resultSet = stmt.executeQuery();
+        while (resultSet.next()) {
+            FoodCookingStepsImg.add(resultSet.getString(1));
+        }
+
+        return FoodCookingStepsImg;
+    }
+
+
+
     public List<Recipe> getAllRecipe() throws SQLException {
         List<Recipe> recipes = new ArrayList<>();
         List<Integer> ids = getFoodIds();
@@ -290,6 +368,14 @@ public class DataBaseHandler{
             recipe.setMainPhoto(getFoodMainPhoto(id));
             recipe.setCategories(getFoodCategory(id));
             recipe.setCookingTime(getFoodCookTime(id));
+            recipe.setDescription(getFoodDescription(id));
+            recipe.setIngredients(getFoodIngredients(id));
+            recipe.setCalories(getFoodCalories(id));
+            recipe.setProtein(getFoodProtein(id));
+            recipe.setFat(getFoodFat(id));
+            recipe.setCarbohydrates(getFoodCarbohydrates(id));
+            recipe.setCookingStepsText(getFoodCookingStepsText(id));
+            recipe.setCookingStepsImg(getFoodCookingStepsImg(id));
 
             recipes.add(recipe);
         }
@@ -304,7 +390,9 @@ public class DataBaseHandler{
         List<Recipe> recipes = d.getAllRecipe();
         for(Recipe recipe: recipes){
             System.out.println(recipe.getName()+"\n " + recipe.getMainPhoto()+ "\n"
-            + recipe.getCategories() + "\n" + recipe.getCookingTime());
+            + recipe.getCategories() + "\n" + recipe.getCookingTime() + "\n" + recipe.getDescription() + "\n" +
+            recipe.getCalories() +" "+ recipe.getProtein() +" "+ recipe.getFat() +" "+ recipe.getCarbohydrates()+ "\n"+
+            recipe.getCookingStepsText() + "\n" + recipe.getCookingStepsImg());
             System.out.println("*********************************************************");
         }
 
