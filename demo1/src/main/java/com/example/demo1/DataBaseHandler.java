@@ -225,24 +225,24 @@ public class DataBaseHandler{
 
     }
 
-    public Integer getCountFood() throws SQLException {
-        int CountFood;
-        Statement statement = getDbConnection().createStatement();
-        ResultSet resultSet = statement.executeQuery("SELECT COUNT(*) FROM food");
 
-        if (resultSet.next()) {
-            CountFood = resultSet.getInt(1);
-        } else {
-            throw new SQLException("No rows found");
-        }
-
-        return CountFood;
-
-    }
     public List<Integer> getFoodIds() throws  SQLException{
         Statement statement = getDbConnection().createStatement();
         List<Integer> ids = new ArrayList<>();
         ResultSet resultSet = statement.executeQuery("SELECT id FROM food");
+
+        while (resultSet.next()) {
+            ids.add(resultSet.getInt(1));
+        }
+        return ids;
+    }
+
+    public List<Integer> getFoodIds(String category) throws SQLException {
+        Statement statement = getDbConnection().createStatement();
+        List<Integer> ids = new ArrayList<>();
+        PreparedStatement stmt = dbConnection.prepareStatement("SELECT id FROM food WHERE categoryID = (SELECT id from category WHere name = ?)");
+        stmt.setString(1, category);
+        ResultSet resultSet = stmt.executeQuery();
 
         while (resultSet.next()) {
             ids.add(resultSet.getInt(1));
@@ -356,27 +356,42 @@ public class DataBaseHandler{
         return FoodCookingStepsImg;
     }
 
+    //Фабрика
+    public Recipe createRecipe(int id) throws SQLException {
+        Recipe recipe = new Recipe();
+        recipe.setName(getFoodName(id));
+        recipe.setMainPhoto(getFoodMainPhoto(id));
+        recipe.setCategories(getFoodCategory(id));
+        recipe.setCookingTime(getFoodCookTime(id));
+        recipe.setDescription(getFoodDescription(id));
+        recipe.setIngredients(getFoodIngredients(id));
+        recipe.setCalories(getFoodCalories(id));
+        recipe.setProtein(getFoodProtein(id));
+        recipe.setFat(getFoodFat(id));
+        recipe.setCarbohydrates(getFoodCarbohydrates(id));
+        recipe.setCookingStepsText(getFoodCookingStepsText(id));
+        recipe.setCookingStepsImg(getFoodCookingStepsImg(id));
 
-
+        return recipe;
+    }
     public List<Recipe> getAllRecipe() throws SQLException {
         List<Recipe> recipes = new ArrayList<>();
         List<Integer> ids = getFoodIds();
 
         for (Integer id: ids){
-            Recipe recipe = new Recipe();
-            recipe.setName(getFoodName(id));
-            recipe.setMainPhoto(getFoodMainPhoto(id));
-            recipe.setCategories(getFoodCategory(id));
-            recipe.setCookingTime(getFoodCookTime(id));
-            recipe.setDescription(getFoodDescription(id));
-            recipe.setIngredients(getFoodIngredients(id));
-            recipe.setCalories(getFoodCalories(id));
-            recipe.setProtein(getFoodProtein(id));
-            recipe.setFat(getFoodFat(id));
-            recipe.setCarbohydrates(getFoodCarbohydrates(id));
-            recipe.setCookingStepsText(getFoodCookingStepsText(id));
-            recipe.setCookingStepsImg(getFoodCookingStepsImg(id));
+            Recipe recipe = createRecipe(id);
+            recipes.add(recipe);
+        }
 
+        return recipes;
+    }
+    //Все рецепты для выбранной категории
+    public List<Recipe> getCategoryRecipe(String categroy) throws SQLException {
+        List<Recipe> recipes = new ArrayList<>();
+        List<Integer> ids = getFoodIds(categroy);
+
+        for (Integer id: ids){
+            Recipe recipe = createRecipe(id);
             recipes.add(recipe);
         }
 
@@ -385,9 +400,10 @@ public class DataBaseHandler{
 
 
 
+
     public static void main(String[] args) throws SQLException {
         DataBaseHandler d = new DataBaseHandler();
-        List<Recipe> recipes = d.getAllRecipe();
+        List<Recipe> recipes = d.getCategoryRecipe("Бульоны и супы");
         for(Recipe recipe: recipes){
             System.out.println(recipe.getName()+"\n " + recipe.getMainPhoto()+ "\n"
             + recipe.getCategories() + "\n" + recipe.getCookingTime() + "\n" + recipe.getDescription() + "\n" +
