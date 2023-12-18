@@ -453,7 +453,7 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                     recipe.setCookingStepsImg(cookingStepListImg.getItems());
 
                     DataBaseHandler test = new DataBaseHandler();
-                    test.createRecipe(recipe);
+                    test.createRecipeToDb(recipe);
                 });
 
 

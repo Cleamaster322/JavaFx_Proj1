@@ -1,6 +1,5 @@
 package com.example.demo1;
 
-import org.jsoup.nodes.Element;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -207,9 +206,7 @@ public class DataBaseHandler{
         }
     }
 
-
-
-    public void createRecipe(Recipe recipe){
+    public void createRecipeToDb(Recipe recipe){
 
         try(Statement statement = getDbConnection().createStatement()) {
             createCategory(recipe);
@@ -226,5 +223,70 @@ public class DataBaseHandler{
         }
 
     }
+
+    public Integer getCountFood() throws SQLException {
+        int CountFood;
+        Statement statement = getDbConnection().createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT COUNT(*) FROM food");
+
+        if (resultSet.next()) {
+            CountFood = resultSet.getInt(1);
+        } else {
+            throw new SQLException("No rows found");
+        }
+
+        return CountFood;
+
+    }
+
+    public String getFoodName(int ID) throws SQLException {
+        PreparedStatement stmt = dbConnection.prepareStatement("SELECT name FROM food WHERE id = ?");
+        stmt.setInt(1, 1); // Задаем значение для первого (и единственного) параметра
+        ResultSet resultSet = stmt.executeQuery();
+        System.out.println(resultSet.getString(1));
+        return resultSet.getString(1);
+    }
+
+
+
+    public List<Recipe> getAllRecipe() throws SQLException {
+        List<Recipe> recipes = new ArrayList<>();
+        int count = getCountFood();
+
+        for (int i = 0; i<count; i++){
+            try (PreparedStatement statement = getDbConnection().prepareStatement("SELECT name, imgFood FROM food WHERE id = ?")) {
+                statement.setInt(1,i+1);
+                ResultSet resultSet = statement.executeQuery();
+
+                if (!resultSet.next()) {
+
+                    PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO preparation (foodID, step, description,img) " +
+                            "VALUES((SELECT food.id FROM food where name = ?), ?, ?, ?)");
+
+
+                    insertStatement.setString(1, recipe.getName());
+                    insertStatement.setInt(2, i);
+                    insertStatement.setString(3,textRow);
+                    insertStatement.setString(4,recipe.getCookingStepsImg().get(i-1));
+                    insertStatement.executeUpdate();
+
+                } else {
+                    System.out.println("Уже есть такое Шагу блюда" + recipe.getName());
+                }
+
+
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            i++;
+        }
+
+    }
+
+    public static void main(String[] args) throws SQLException {
+        DataBaseHandler d = new DataBaseHandler();
+        System.out.println(d.getAllRecipe());
+    }
+
 
 }

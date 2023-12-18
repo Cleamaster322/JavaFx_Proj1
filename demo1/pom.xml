@@ -51,8 +51,6 @@
             <artifactId>mysql-connector-j</artifactId>
             <version>8.2.0</version>
         </dependency>
-
-
     </dependencies>
 
     <build>
