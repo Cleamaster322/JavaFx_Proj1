@@ -225,7 +225,7 @@ public class DataBaseHandler{
 
     }
 
-
+    //получение всех id блюд
     public List<Integer> getFoodIds() throws  SQLException{
         Statement statement = getDbConnection().createStatement();
         List<Integer> ids = new ArrayList<>();
@@ -236,7 +236,7 @@ public class DataBaseHandler{
         }
         return ids;
     }
-
+    //получение id блюд по определенной категории
     public List<Integer> getFoodIds(String category) throws SQLException {
         Statement statement = getDbConnection().createStatement();
         List<Integer> ids = new ArrayList<>();
@@ -374,6 +374,7 @@ public class DataBaseHandler{
 
         return recipe;
     }
+    //Все рецепты для выбранной категории
     public List<Recipe> getAllRecipe() throws SQLException {
         List<Recipe> recipes = new ArrayList<>();
         List<Integer> ids = getFoodIds();
@@ -385,7 +386,7 @@ public class DataBaseHandler{
 
         return recipes;
     }
-    //Все рецепты для выбранной категории
+    //Все рецепты по выбранной категории
     public List<Recipe> getCategoryRecipe(String categroy) throws SQLException {
         List<Recipe> recipes = new ArrayList<>();
         List<Integer> ids = getFoodIds(categroy);
