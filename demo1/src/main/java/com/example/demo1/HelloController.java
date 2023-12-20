@@ -206,7 +206,7 @@ public class HelloController extends DataBaseHandler { //ожидает пере
 
     public void addProductButton(GridPane gridPane) {
         try {
-            List<Recipe> recipes = getAllRecipe();
+            List<Recipe> recipes = getCategoryRecipe("Горячие блюда");
             ObservableList<Recipe> recipeList = FXCollections.observableArrayList(recipes);
 
             // Установка горизонтального интервала между кнопками
@@ -263,7 +263,7 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                     Label carbohydratesRecipeTextLabel = new Label("Углеводы: " + recipe.getCarbohydrates());
                     Label nameIngredientList = new Label("Список ингредиентов: " + recipe.getIngredients());
 
-                    root.getChildren().addAll(nameRecipeTextLabel, photoRecipeTextLabel, descriptionRecipeTextLabel, categoryRecipeTextLabel);
+                    root.getChildren().addAll(nameRecipeTextLabel, photoRecipeTextLabel, descriptionRecipeTextLabel, categoryRecipeTextLabel, cookingTimeRecipeTextLabel, caloriesRecipeTextLabel, proteinRecipeTextLabel, fatRecipeTextLabel, carbohydratesRecipeTextLabel, nameIngredientList);
 
                     Scene scene = new Scene(root, 800, 600);
 

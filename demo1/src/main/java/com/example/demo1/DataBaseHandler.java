@@ -387,9 +387,9 @@ public class DataBaseHandler{
         return recipes;
     }
     //Все рецепты по выбранной категории
-    public List<Recipe> getCategoryRecipe(String categroy) throws SQLException {
+    public List<Recipe> getCategoryRecipe(String category) throws SQLException {
         List<Recipe> recipes = new ArrayList<>();
-        List<Integer> ids = getFoodIds(categroy);
+        List<Integer> ids = getFoodIds(category);
 
         for (Integer id: ids){
             Recipe recipe = createRecipe(id);
