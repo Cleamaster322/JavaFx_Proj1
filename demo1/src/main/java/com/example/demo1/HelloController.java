@@ -6,6 +6,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -24,7 +25,7 @@ public class HelloController extends DataBaseHandler { //ожидает пере
     //паттерн depencity inject
 
 
-    ObservableList<String> categories = FXCollections.observableArrayList("Первое", "Второе", "Компот");
+    ObservableList<String> categories = FXCollections.observableArrayList("Бульоны и супы", "Десерты", "Выпечка", "Горячие блюда");
 
     public void onAButtonClick() {
         Stage categoryAStage = new Stage();
@@ -118,16 +119,18 @@ public class HelloController extends DataBaseHandler { //ожидает пере
         gridPane.getChildren().clear(); // Очищаем содержимое GridPane
 
         switch (selectedCategory) {
-            case "Первое":
+            case "Бульоны и супы":
                 addProductComboBox(gridPane);
                 break;
-            case "Второе":
+            case "Десерты":
                 addEmptyPaneToGrid(gridPane);
                 onCategoryNoneSelected(gridPane);
                 break;
-            case "Компот":
+            case "Выпечка":
                 addButtonsToGrid(gridPane);
                 break;
+            case "Горячие блюда":
+                addProductButton(gridPane);
             default:
                 break;
         }
@@ -200,6 +203,83 @@ public class HelloController extends DataBaseHandler { //ожидает пере
         button.setGraphic(imageView);
 
     }
+
+    public void addProductButton(GridPane gridPane) {
+        try {
+            List<Recipe> recipes = getAllRecipe();
+            ObservableList<Recipe> recipeList = FXCollections.observableArrayList(recipes);
+
+            // Установка горизонтального интервала между кнопками
+            gridPane.setHgap(20);
+
+            for (int i = 0; i < recipeList.size(); i++) {
+                Recipe recipe = recipeList.get(i);
+
+                // Создание StackPane для наложения текста на изображение
+                StackPane stackPane = new StackPane();
+
+                // Создание изображения
+                ImageView imageView = new ImageView(new Image(recipe.getMainPhoto()));
+                imageView.setPreserveRatio(true);
+                imageView.setFitWidth(200);
+                imageView.setFitHeight(200);
+                stackPane.getChildren().add(imageView);
+
+                // Создание текста
+                Label label = new Label();
+                label.setText(recipe.getName());
+                label.setFont(new Font("Arial", 14));
+                label.setStyle("-fx-text-fill: white;");
+                stackPane.getChildren().add(label);
+
+                // Создание кнопки
+                Button recipeButton = new Button();
+                recipeButton.setGraphic(stackPane);
+                recipeButton.setPrefSize(200, 200);
+
+                // Добавление кнопки в GridPane
+                int column = i % 3; // Определение столбца для кнопки
+                int row = i / 3; // Определение строки для кнопки
+                gridPane.add(recipeButton, column, row);
+
+                // Обработчик событий для кнопки
+                recipeButton.setOnAction(event -> {
+                    // Создание нового окна
+                    Stage newWindow = new Stage();
+                    newWindow.setTitle(recipe.getName());
+
+                    VBox root = new VBox();
+                    root.setSpacing(10);
+                    root.setPadding(new Insets(10));
+
+                    Label nameRecipeTextLabel = new Label("Название: " + recipe.getName());
+                    Label photoRecipeTextLabel = new Label("Главное фото: " + recipe.getMainPhoto());
+                    Label descriptionRecipeTextLabel = new Label("Описание: " + recipe.getDescription());
+                    Label categoryRecipeTextLabel = new Label("Категории: " + recipe.getCategories());
+                    Label cookingTimeRecipeTextLabel = new Label("Время приготовления: " + recipe.getCookingTime());
+                    Label caloriesRecipeTextLabel = new Label("Калории: " + recipe.getCalories());
+                    Label proteinRecipeTextLabel = new Label("Белки: " + recipe.getProtein());
+                    Label fatRecipeTextLabel = new Label("Жиры: " + recipe.getFat());
+                    Label carbohydratesRecipeTextLabel = new Label("Углеводы: " + recipe.getCarbohydrates());
+                    Label nameIngredientList = new Label("Список ингредиентов: " + recipe.getIngredients());
+
+                    root.getChildren().addAll(nameRecipeTextLabel, photoRecipeTextLabel, descriptionRecipeTextLabel, categoryRecipeTextLabel);
+
+                    Scene scene = new Scene(root, 800, 600);
+
+                    newWindow.setScene(scene);
+
+                    newWindow.show();
+                });
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+
 
     private VBox favoritesBox = new VBox();
 
@@ -371,9 +451,6 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                     // Очистка TextField
                     newCookingStepListImgField.clear();
                 });
-
-
-
 
                 Button next = new Button("Далее");
 
