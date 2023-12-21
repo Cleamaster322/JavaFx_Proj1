@@ -326,14 +326,14 @@ public class DataBaseHandler {
 
     public List<String> getFoodIngredients(int id) throws  SQLException{
         List<String> ingredients = new ArrayList<>();
-        PreparedStatement stmt = dbConnection.prepareStatement("SELECT products.name,structure.countMeasurement FROM java.structure " +
+        PreparedStatement stmt = dbConnection.prepareStatement("SELECT products.name,structure.countMeasurement, structure.measurement  FROM java.structure " +
                                                                     "JOIN products ON java.structure.productID = products.id " +
                                                                     "WHERE java.structure.foodID = ?");
         stmt.setInt(1, id);
         ResultSet resultSet = stmt.executeQuery();
         while (resultSet.next()) {
 
-            ingredients.add(resultSet.getString(1)+ " - " +resultSet.getString(2));
+            ingredients.add(resultSet.getString(1)+ " - " +resultSet.getString(2) + " " + resultSet.getString(3));
         }
 
         return ingredients;
@@ -444,16 +444,13 @@ public class DataBaseHandler {
 
         return recipes;
     }
-    public List<Recipe> getBasketRecipe() throws SQLException {
-        List<Recipe> recipes = new ArrayList<>();
+    public void getBasketIngredients() throws SQLException {
         List<Integer> ids = getBasketFoodIds();
-
+        StringBuilder query = new StringBuilder();
         for (Integer id: ids){
-            Recipe recipe = createRecipe(id);
-            recipes.add(recipe);
+            query.append(id);
         }
-
-        return recipes;
+//        return
     }
     public boolean checkFavoriteFood(String name) throws  SQLException{
         PreparedStatement insertStatement = getDbConnection().prepareStatement("SELECT * FROM favorite WHERE favorite.foodID = (select id from food WHERE food.name = ?)");
@@ -477,12 +474,12 @@ public class DataBaseHandler {
 
     }
     public void removeFavorite(String name) throws SQLException {
-        PreparedStatement deleteStatement = getDbConnection().prepareStatement("DELETE FROM favorite WHERE foodID = SELECT food.id FROM food where name = ?");
+        PreparedStatement deleteStatement = getDbConnection().prepareStatement("DELETE FROM favorite WHERE foodID = (SELECT food.id FROM food where name = ?)");
         deleteStatement.setString(1,name);
         deleteStatement.executeUpdate();
     }
     public void removeBasket(String name) throws SQLException {
-        PreparedStatement deleteStatement = getDbConnection().prepareStatement("DELETE FROM basket WHERE foodID = SELECT food.id FROM food where name = ?");
+        PreparedStatement deleteStatement = getDbConnection().prepareStatement("DELETE FROM basket WHERE foodID = (SELECT food.id FROM food where name = ?)");
         deleteStatement.setString(1,name);
         deleteStatement.executeUpdate();
     }
@@ -521,8 +518,20 @@ public class DataBaseHandler {
 
     public static void main(String[] args) throws SQLException {
         DataBaseHandler d = new DataBaseHandler();
-        List<Recipe> recipes = d.getCategoryRecipe("Бульоны и супы");
-        System.out.println(d.checkFavoriteFood("Окрошка из детства"));
+        List<Integer> foodIDs = Arrays.asList(2, 3); // Ваш список foodID
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = 0; i < foodIDs.size(); i++) {
+            if (i > 0) {
+                builder.append(", ");
+            }
+            builder.append("?");
+        }
+
+        String placeholders = builder.toString();
+        System.out.println(placeholders);
+
+
 
     }
     }
