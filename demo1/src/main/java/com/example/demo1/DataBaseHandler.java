@@ -111,9 +111,21 @@ public class DataBaseHandler {
                 words[0] = words[0].trim();
                 words[1] = "";
             }
+            if (words[1].contains(" - ")){
+                words[1] = words[1].replaceAll("(\\d+)\\s+-\\s+(\\d+)", "$1");
+            }
+            String[] measurement = words[1].split(" ", 2);
 
 
-            System.out.println(words[0] + "!!!!!!" + words[1]);
+            if (measurement.length == 1){
+                measurement = Arrays.copyOf(measurement, measurement.length + 1);
+                measurement[0] = measurement[0].trim();
+                measurement[1] = "По вкусу";
+            }
+
+//            System.out.println("1"+ words[0]+" 2"+ Integer.parseInt(measurement[0].trim()) + " 3" +measurement[1]);
+
+
             try(PreparedStatement statement = getDbConnection().prepareStatement("SELECT * FROM structure " +
                                                                                 "WHERE foodID = (SELECT food.id FROM food where name = ?) " +
                                                                                 "AND productID = (SELECT products.id FROM products where name = ?)")){
@@ -121,14 +133,19 @@ public class DataBaseHandler {
                 statement.setString(2, words[0].trim());
                 ResultSet resultSet = statement.executeQuery();
                 if(!resultSet.next()) {
-                    PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO structure (foodID, productID, countMeasurement) " +
+                    PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO structure (foodID, productID, countMeasurement, measurement) " +
                                                                                             "VALUES ((SELECT food.id FROM food where name = ?)," +
-                                                                                            "(SELECT products.id FROM products where name = ?)" +
-                                                                                            ",?)");
+                                                                                            "(SELECT products.id FROM products where name = ?)," +
+                                                                                            " ?, ?)");
 
                     insertStatement.setString(1, recipe.getName());
                     insertStatement.setString(2, words[0].trim());
-                    insertStatement.setString(3, words[1]);
+                    if (measurement[0].isEmpty()) {
+                        insertStatement.setNull(3,Types.INTEGER);
+                    } else{
+                        insertStatement.setFloat(3, Float.parseFloat(measurement[0].trim().replace(",",".")));
+                    }
+                    insertStatement.setString(4,measurement[1].trim());
                     insertStatement.executeUpdate();
                 } else {
                 System.out.println("Уже есть такая структура");
@@ -247,7 +264,7 @@ public class DataBaseHandler {
         }
         return ids;
     }
-    public List<Integer> getFavoriteFoodIds(String category) throws SQLException {
+    public List<Integer> getFavoriteFoodIds() throws SQLException {
         Statement statement = getDbConnection().createStatement();
         List<Integer> ids = new ArrayList<>();
         ResultSet resultSet = statement.executeQuery("SELECT foodID FROM favorite");
@@ -259,9 +276,7 @@ public class DataBaseHandler {
     public List<Integer> getBasketFoodIds() throws SQLException {
         Statement statement = getDbConnection().createStatement();
         List<Integer> ids = new ArrayList<>();
-        PreparedStatement stmt = dbConnection.prepareStatement("SELECT foodID FROM basket");
-        ResultSet resultSet = stmt.executeQuery();
-
+        ResultSet resultSet = statement.executeQuery("SELECT foodID FROM basket");
         while (resultSet.next()) {
             ids.add(resultSet.getInt(1));
         }
@@ -419,6 +434,16 @@ public class DataBaseHandler {
 
         return recipes;
     }
+    public List<Recipe> getFavoriteRecipe() throws  SQLException{
+        List<Recipe> recipes = new ArrayList<>();
+        List<Integer> ids = getFavoriteFoodIds();
+        for (Integer id: ids){
+            Recipe recipe = createRecipe(id);
+            recipes.add(recipe);
+        }
+
+        return recipes;
+    }
     public List<Recipe> getBasketRecipe() throws SQLException {
         List<Recipe> recipes = new ArrayList<>();
         List<Integer> ids = getBasketFoodIds();
@@ -483,6 +508,8 @@ public class DataBaseHandler {
             }
         });
     }
+
+    public void getBasket
 
 
     public static void main(String[] args) throws SQLException {
