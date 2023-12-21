@@ -5,32 +5,30 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-public class DataBaseHandler{
+import java.util.*;
+
+public class DataBaseHandler {
     private Properties properties = new Properties();
     private Connection dbConnection;
 
 //    Подключение к базе данных
     public Connection getDbConnection() throws SQLException {
 
-        try (InputStream input = new FileInputStream("src/main/resources/sql.properties")) {
-            properties.load(input);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        dbConnection = DriverManager.getConnection(properties.getProperty("database.url"), properties.getProperty("database.login"), properties.getProperty("database.pass"));
-        return dbConnection;
+    try (InputStream input = new FileInputStream("src/main/resources/sql.properties")) {
+        properties.load(input);
+    } catch (IOException e) {
+        throw new RuntimeException(e);
     }
+
+    dbConnection = DriverManager.getConnection(properties.getProperty("database.url"), properties.getProperty("database.login"), properties.getProperty("database.pass"));
+    return dbConnection;
+}
 
     public List<String> GetNotAllData() throws SQLException {
         List<String> cities = new ArrayList<>();
 
         try (Statement statement = getDbConnection().createStatement()) {
-            ResultSet resultSet = statement.executeQuery("SELECT Name FROM java.category WHERE id < 7;");
+            ResultSet resultSet = statement.executeQuery("SELECT Name FROM world.city WHERE id < 7;");
 
             while (resultSet.next()) {
                 String city = resultSet.getString(1);
@@ -89,14 +87,13 @@ public class DataBaseHandler{
             ResultSet resultSet = statement.executeQuery();
             //Если нет то дабавляем ее
             if (!resultSet.next()) {
-                PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO food (name,categoryID,imgFood,cookTime,mainDescription) " +
-                                                                                            "VALUES (?,(SELECT id FROM category where category.name = ?)" +
-                                                                                            ",?,?,?)");
+                PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO food (name,categoryID,imgFood,cookTime) " +
+                        "VALUES (?,(SELECT id FROM category where category.name = ?)" +
+                        ",?,?)");
                 insertStatement.setString(1, recipe.getName());
                 insertStatement.setString(2,recipe.getCategories());
                 insertStatement.setString(3,recipe.getMainPhoto());
                 insertStatement.setString(4,recipe.getCookingTime());
-                insertStatement.setString(5,recipe.getDescription());
                 insertStatement.executeUpdate();
             } else {
                 System.out.println("Уже есть такое блюдо");
@@ -249,6 +246,28 @@ public class DataBaseHandler{
         }
         return ids;
     }
+    public List<Integer> getFavoriteFoodIds(String category) throws SQLException {
+        Statement statement = getDbConnection().createStatement();
+        List<Integer> ids = new ArrayList<>();
+        ResultSet resultSet = statement.executeQuery("SELECT foodID FROM favorite");
+        while (resultSet.next()) {
+            ids.add(resultSet.getInt(1));
+        }
+        return ids;
+    }
+    public List<Integer> getBasketFoodIds() throws SQLException {
+        Statement statement = getDbConnection().createStatement();
+        List<Integer> ids = new ArrayList<>();
+        PreparedStatement stmt = dbConnection.prepareStatement("SELECT foodID FROM basket");
+        ResultSet resultSet = stmt.executeQuery();
+
+        while (resultSet.next()) {
+            ids.add(resultSet.getInt(1));
+        }
+        return ids;
+    }
+
+
     public String getFoodName(int id) throws SQLException {
         PreparedStatement stmt = dbConnection.prepareStatement("SELECT name FROM food WHERE id = ?");
         stmt.setInt(1, id); // Задаем значение для первого (и единственного) параметра
@@ -291,13 +310,14 @@ public class DataBaseHandler{
 
     public List<String> getFoodIngredients(int id) throws  SQLException{
         List<String> ingredients = new ArrayList<>();
-        PreparedStatement stmt = dbConnection.prepareStatement("SELECT products.name FROM java.structure " +
+        PreparedStatement stmt = dbConnection.prepareStatement("SELECT products.name,structure.countMeasurement FROM java.structure " +
                                                                     "JOIN products ON java.structure.productID = products.id " +
                                                                     "WHERE java.structure.foodID = ?");
         stmt.setInt(1, id);
         ResultSet resultSet = stmt.executeQuery();
         while (resultSet.next()) {
-            ingredients.add(resultSet.getString(1));
+
+            ingredients.add(resultSet.getString(1)+ " - " +resultSet.getString(2));
         }
 
         return ingredients;
@@ -398,20 +418,85 @@ public class DataBaseHandler{
 
         return recipes;
     }
+    public List<Recipe> getBasketRecipe() throws SQLException {
+        List<Recipe> recipes = new ArrayList<>();
+        List<Integer> ids = getBasketFoodIds();
 
+        for (Integer id: ids){
+            Recipe recipe = createRecipe(id);
+            recipes.add(recipe);
+        }
 
+        return recipes;
+    }
+
+    public void addToFavorite(int id) throws SQLException {
+        PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO favorite (foodID) VALUES (?)");
+        insertStatement.setInt(1,id);
+        insertStatement.execute();
+
+    }
+    public void addToBasket(int id) throws SQLException {
+        PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO basket (foodID) VALUES (?)");
+        insertStatement.setInt(1,id);
+        insertStatement.execute();
+
+    }
+    public void removeFavorite(int id) throws SQLException {
+        PreparedStatement deleteStatement = getDbConnection().prepareStatement("DELETE FROM favorite WHERE foodID = ?");
+        deleteStatement.setInt(1, id);
+        deleteStatement.executeUpdate();
+    }
+    public void removeBasket(int id) throws SQLException {
+        PreparedStatement deleteStatement = getDbConnection().prepareStatement("DELETE FROM basket WHERE foodID = ?");
+        deleteStatement.setInt(1, id);
+        deleteStatement.executeUpdate();
+    }
+
+    public List<Integer> selectByFilteredProductIds(String product) throws SQLException {
+        Statement statement = getDbConnection().createStatement();
+        List<Integer> ids = new ArrayList<>();
+        PreparedStatement stmt = dbConnection.prepareStatement("SELECT foodID FROM structure WHERE productID = (SELECT id FROM products WHERE name = ?)");
+        stmt.setString(1, product);
+        ResultSet resultSet = stmt.executeQuery();
+
+        while (resultSet.next()) {
+            ids.add(resultSet.getInt(1));
+        }
+        return ids;
+    }
+    public List<Recipe> GetFilteredRecipes() throws SQLException {
+        List<Recipe> recipes = new ArrayList<>();
+        for (Integer id: selectByFilteredProductIds("Картофель")){
+            Recipe recipe = createRecipe(id);
+            recipes.add(recipe);
+        }
+        return recipes;
+    }
+
+    public static void sortRecipesByName(List<Recipe> recipes) {
+        recipes.sort(new Comparator<Recipe>() {
+            @Override
+            public int compare(Recipe r1, Recipe r2) {
+                return r1.getName().compareTo(r2.getName());
+            }
+        });
+    }
+
+    public void getBasket() throws SQLException {
+        Statement statement = getDbConnection().createStatement();
+
+    }
 
 
     public static void main(String[] args) throws SQLException {
         DataBaseHandler d = new DataBaseHandler();
         List<Recipe> recipes = d.getCategoryRecipe("Бульоны и супы");
-        for(Recipe recipe: recipes){
-            System.out.println(recipe.getName()+"\n " + recipe.getMainPhoto()+ "\n"
-            + recipe.getCategories() + "\n" + recipe.getCookingTime() + "\n" + recipe.getDescription() + "\n" +
-            recipe.getCalories() +" "+ recipe.getProtein() +" "+ recipe.getFat() +" "+ recipe.getCarbohydrates()+ "\n"+
-            recipe.getCookingStepsText() + "\n" + recipe.getCookingStepsImg());
-            System.out.println("*********************************************************");
-        }
+//        List<Recipe> recipes1 = d.getBasketRecipe();
+//        for(Recipe recipe:recipes1){
+//            System.out.println(recipe.getIngredients());
+//        }
+        System.out.println(d.getFoodIngredients(2));
 
     }
 
