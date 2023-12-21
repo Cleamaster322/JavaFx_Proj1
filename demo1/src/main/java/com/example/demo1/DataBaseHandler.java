@@ -455,9 +455,17 @@ public class DataBaseHandler {
 
         return recipes;
     }
+    public boolean checkFavoriteFood(String name) throws  SQLException{
+        PreparedStatement insertStatement = getDbConnection().prepareStatement("SELECT * FROM favorite WHERE favorite.foodID = (select id from food WHERE food.name = ?)");
+        insertStatement.setString(1,name);
+        ResultSet resultSet = insertStatement.executeQuery();
+
+        return resultSet.next();
+
+    }
 
     public void addToFavorite(String name) throws SQLException {
-        PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO favorite (foodID) VALUES (SELECT food.id FROM food where name = ?)");
+        PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO favorite (foodID) SELECT food.id FROM food WHERE name = ?");
         insertStatement.setString(1,name);
         insertStatement.execute();
 
@@ -514,7 +522,7 @@ public class DataBaseHandler {
     public static void main(String[] args) throws SQLException {
         DataBaseHandler d = new DataBaseHandler();
         List<Recipe> recipes = d.getCategoryRecipe("Бульоны и супы");
-
+        System.out.println(d.checkFavoriteFood("Окрошка из детства"));
 
     }
     }
