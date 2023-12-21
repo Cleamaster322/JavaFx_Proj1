@@ -261,6 +261,42 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                     imageViewRecipe.setFitWidth(200);
                     imageViewRecipe.setFitHeight(200);
 
+
+
+                    // Создание кнопок "Добавить в избранное" и "Добавить в корзину"
+                    Button addToFavoritesButton = new Button();
+                    updateFavoriteButton(addToFavoritesButton, recipe.getName());
+
+                    addToFavoritesButton.setOnAction(a -> {
+                        try {
+                            boolean isInFavorites = checkFavoriteFood(recipe.getName());
+                            if (isInFavorites) {
+                                // Удалить из избранного
+                                removeFavorite(recipe.getName());
+                                updateFavoriteButton(addToFavoritesButton, recipe.getName());
+                            } else {
+                                // Добавить в избранное
+                                addToFavorite(recipe.getName());
+                                updateFavoriteButton(addToFavoritesButton, recipe.getName());
+                            }
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+
+                    Button addToCartButton = new Button("Добавить в корзину");
+                    addToCartButton.setOnAction(e -> {
+                        try {
+                            addToBasket(recipe.getName()); // Предположим, что у рецепта есть метод getId() для получения ID
+                        } catch (SQLException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    });
+
+                    VBox buttonsBox = new VBox(5); // Контейнер для кнопок
+                    buttonsBox.setAlignment(Pos.TOP_RIGHT);
+                    buttonsBox.getChildren().addAll(addToFavoritesButton, addToCartButton);
+
                     Label photoRecipeTextLabel = new Label("Главное фото:");
 
                     photoRecipeBox.getChildren().addAll(photoRecipeTextLabel, imageViewRecipe);
@@ -325,7 +361,7 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                     Label carbohydratesRecipeTextLabel = new Label("Углеводы: " + recipe.getCarbohydrates());
 
 
-                    root.getChildren().addAll(nameRecipeTextLabel, photoRecipeBox, descriptionBox, categoryRecipeTextLabel, cookingTimeRecipeTextLabel, caloriesRecipeTextLabel, proteinRecipeTextLabel, fatRecipeTextLabel, carbohydratesRecipeTextLabel, ingredientsBox, cookingStepsBox);
+                    root.getChildren().addAll(addToFavoritesButton, addToCartButton, nameRecipeTextLabel, photoRecipeBox, descriptionBox, categoryRecipeTextLabel, cookingTimeRecipeTextLabel, caloriesRecipeTextLabel, proteinRecipeTextLabel, fatRecipeTextLabel, carbohydratesRecipeTextLabel, ingredientsBox, cookingStepsBox);
 
                     ScrollPane scrollPane = new ScrollPane(root);
 
@@ -340,7 +376,21 @@ public class HelloController extends DataBaseHandler { //ожидает пере
         }
     }
 
-    
+    private void updateFavoriteButton(Button button, String recipeName) {
+        try {
+            boolean isInFavorites = checkFavoriteFood(recipeName);
+            if (isInFavorites) {
+                button.setText("Удалить из избранного");
+            } else {
+                button.setText("Добавить в избранное");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+
     private VBox favoritesBox = new VBox();
 
     public void onBButtonClick() {
