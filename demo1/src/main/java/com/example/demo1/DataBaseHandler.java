@@ -444,13 +444,42 @@ public class DataBaseHandler {
 
         return recipes;
     }
-    public void getBasketIngredients() throws SQLException {
+    public List<String> getBasketIngredients() throws SQLException {
         List<Integer> ids = getBasketFoodIds();
-        StringBuilder query = new StringBuilder();
-        for (Integer id: ids){
-            query.append(id);
+        StringBuilder builder = new StringBuilder();
+
+
+        for (int i = 0; i < ids.size(); i++) {
+            if (i > 0) {
+                builder.append(", ");
+            }
+            builder.append("?");
         }
-//        return
+
+        String placeholders = builder.toString();
+        String query = "SELECT products.name, productID, SUM(CountMeasurement) as TotalCountMesurement, structure.measurement " +
+                "FROM structure " +
+                "JOIN products on structure.productID = products.id " +
+                "WHERE foodID IN (" + placeholders + ") " +
+                "GROUP BY products.name, productID, structure.measurement";
+
+        PreparedStatement pstmt = dbConnection.prepareStatement(query);
+        int index = 1;
+        for (Integer foodID : ids) {
+            pstmt.setInt(index++, foodID);
+        }
+        ResultSet resultSet = pstmt.executeQuery();
+        List<String> result = new ArrayList<>();
+        while (resultSet.next()) {
+            String measurement = resultSet.getString(3);
+            if (measurement == null){
+                measurement = "";
+            }else {
+                measurement =resultSet.getString(3);
+            }
+            result.add(resultSet.getString(1) + " - " + measurement +" " + resultSet.getString(4));
+        }
+        return result;
     }
     public boolean checkFavoriteFood(String name) throws  SQLException{
         PreparedStatement insertStatement = getDbConnection().prepareStatement("SELECT * FROM favorite WHERE favorite.foodID = (select id from food WHERE food.name = ?)");
@@ -468,7 +497,7 @@ public class DataBaseHandler {
 
     }
     public void addToBasket(String name) throws SQLException {
-        PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO basket (foodID) VALUES (SELECT food.id FROM food where name = ?)");
+        PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO basket (foodID) (SELECT food.id FROM food where name = ?)");
         insertStatement.setString(1,name);
         insertStatement.execute();
 
@@ -519,17 +548,17 @@ public class DataBaseHandler {
     public static void main(String[] args) throws SQLException {
         DataBaseHandler d = new DataBaseHandler();
         List<Integer> foodIDs = Arrays.asList(2, 3); // Ваш список foodID
-        StringBuilder builder = new StringBuilder();
+        List<Recipe> recipes = d.getAllRecipe();
 
-        for (int i = 0; i < foodIDs.size(); i++) {
-            if (i > 0) {
-                builder.append(", ");
-            }
-            builder.append("?");
+        for (Recipe recipe: recipes){
+            System.out.println(recipe.getIngredients());
         }
 
-        String placeholders = builder.toString();
-        System.out.println(placeholders);
+        for (String ingr: d.getBasketIngredients()){
+            System.out.println(ingr);
+        }
+
+
 
 
 
