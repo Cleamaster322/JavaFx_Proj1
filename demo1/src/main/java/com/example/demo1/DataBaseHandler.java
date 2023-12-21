@@ -104,7 +104,6 @@ public class DataBaseHandler {
         }
     }
     public void createStructure(Recipe recipe){
-        System.out.println(recipe.getIngredients());
         for (String ingredient : recipe.getIngredients()) {
             String[] words = ingredient.split(" — ");
             if (words.length == 1){
@@ -112,6 +111,8 @@ public class DataBaseHandler {
                 words[0] = words[0].trim();
                 words[1] = "";
             }
+
+
             System.out.println(words[0] + "!!!!!!" + words[1]);
             try(PreparedStatement statement = getDbConnection().prepareStatement("SELECT * FROM structure " +
                                                                                 "WHERE foodID = (SELECT food.id FROM food where name = ?) " +
@@ -483,22 +484,11 @@ public class DataBaseHandler {
         });
     }
 
-    public void getBasket() throws SQLException {
-        Statement statement = getDbConnection().createStatement();
-
-    }
-
 
     public static void main(String[] args) throws SQLException {
         DataBaseHandler d = new DataBaseHandler();
         List<Recipe> recipes = d.getCategoryRecipe("Бульоны и супы");
-//        List<Recipe> recipes1 = d.getBasketRecipe();
-//        for(Recipe recipe:recipes1){
-//            System.out.println(recipe.getIngredients());
-//        }
-        System.out.println(d.getFoodIngredients(2));
+
 
     }
-
-
-}
+    }
