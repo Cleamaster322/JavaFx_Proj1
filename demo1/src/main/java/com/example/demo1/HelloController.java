@@ -121,6 +121,7 @@ public class HelloController extends DataBaseHandler { //ожидает пере
 
         switch (selectedCategory) {
             case "Бульоны и супы":
+
                 addProductButtonForCategory(gridPane, "Бульоны и супы");
                 break;
             case "Десерты":
@@ -323,6 +324,7 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                     Label fatRecipeTextLabel = new Label("Жиры: " + recipe.getFat());
                     Label carbohydratesRecipeTextLabel = new Label("Углеводы: " + recipe.getCarbohydrates());
 
+
                     root.getChildren().addAll(nameRecipeTextLabel, photoRecipeBox, descriptionBox, categoryRecipeTextLabel, cookingTimeRecipeTextLabel, caloriesRecipeTextLabel, proteinRecipeTextLabel, fatRecipeTextLabel, carbohydratesRecipeTextLabel, ingredientsBox, cookingStepsBox);
 
                     ScrollPane scrollPane = new ScrollPane(root);
@@ -337,6 +339,7 @@ public class HelloController extends DataBaseHandler { //ожидает пере
             throw new RuntimeException(e);
         }
     }
+
     
     private VBox favoritesBox = new VBox();
 
@@ -508,9 +511,6 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                     // Очистка TextField
                     newCookingStepListImgField.clear();
                 });
-
-
-
 
                 Button next = new Button("Далее");
 
