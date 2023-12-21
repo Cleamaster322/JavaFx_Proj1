@@ -456,26 +456,26 @@ public class DataBaseHandler {
         return recipes;
     }
 
-    public void addToFavorite(int id) throws SQLException {
-        PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO favorite (foodID) VALUES (?)");
-        insertStatement.setInt(1,id);
+    public void addToFavorite(String name) throws SQLException {
+        PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO favorite (foodID) VALUES (SELECT food.id FROM food where name = ?)");
+        insertStatement.setString(1,name);
         insertStatement.execute();
 
     }
-    public void addToBasket(int id) throws SQLException {
-        PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO basket (foodID) VALUES (?)");
-        insertStatement.setInt(1,id);
+    public void addToBasket(String name) throws SQLException {
+        PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO basket (foodID) VALUES (SELECT food.id FROM food where name = ?)");
+        insertStatement.setString(1,name);
         insertStatement.execute();
 
     }
-    public void removeFavorite(int id) throws SQLException {
-        PreparedStatement deleteStatement = getDbConnection().prepareStatement("DELETE FROM favorite WHERE foodID = ?");
-        deleteStatement.setInt(1, id);
+    public void removeFavorite(String name) throws SQLException {
+        PreparedStatement deleteStatement = getDbConnection().prepareStatement("DELETE FROM favorite WHERE foodID = SELECT food.id FROM food where name = ?");
+        deleteStatement.setString(1,name);
         deleteStatement.executeUpdate();
     }
-    public void removeBasket(int id) throws SQLException {
-        PreparedStatement deleteStatement = getDbConnection().prepareStatement("DELETE FROM basket WHERE foodID = ?");
-        deleteStatement.setInt(1, id);
+    public void removeBasket(String name) throws SQLException {
+        PreparedStatement deleteStatement = getDbConnection().prepareStatement("DELETE FROM basket WHERE foodID = SELECT food.id FROM food where name = ?");
+        deleteStatement.setString(1,name);
         deleteStatement.executeUpdate();
     }
 
@@ -509,7 +509,6 @@ public class DataBaseHandler {
         });
     }
 
-    public void getBasket
 
 
     public static void main(String[] args) throws SQLException {
