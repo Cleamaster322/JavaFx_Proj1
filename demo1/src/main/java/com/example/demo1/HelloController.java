@@ -39,6 +39,7 @@ public class HelloController extends DataBaseHandler {
 
         addProductButton(gridPane, null);
 
+
         gridPane.setAlignment(Pos.CENTER);
 
         categoryComboBox.setOnAction(e -> {
@@ -79,8 +80,9 @@ public class HelloController extends DataBaseHandler {
     public void addProductButton(GridPane gridPane, String category) {
         try {
             List<Recipe> recipes;
-            if (category == null) {
+            if (category == null || category.isEmpty()) {
                 recipes = getAllRecipe();
+                gridPane.getChildren().clear();
             } else if (category.equals("Избранное")) {
                 recipes = getFavoriteRecipe();
             } else {
@@ -171,7 +173,8 @@ public class HelloController extends DataBaseHandler {
                     removeRecipe.setOnAction(b -> {
                         try {
                             deleteFoodByName(recipe.getName());
-                            root.getChildren().clear();
+                            gridPane.getChildren().remove(recipeButton);
+                            categoryRecipeStage.hide();
                         } catch (SQLException ex) {
                             throw new RuntimeException(ex);
                         }
