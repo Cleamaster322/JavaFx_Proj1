@@ -161,9 +161,18 @@ public class HelloController extends DataBaseHandler {
                     });
 
                     Button addToCartButton = new Button("Добавить в корзину");
+                    updateCartButton(addToCartButton, recipe.getName());
+
                     addToCartButton.setOnAction(e -> {
                         try {
-                            addToBasket(recipe.getName()); // Предположим, что у рецепта есть метод getId() для получения ID
+                            boolean isInBasket = checkBasketFood(recipe.getName());
+                            if (isInBasket){
+                                removeBasket(recipe.getName());
+                                updateCartButton(addToCartButton, recipe.getName());
+                            } else {
+                                addToBasket(recipe.getName());
+                                updateCartButton(addToCartButton, recipe.getName());
+                            }
                         } catch (SQLException ex) {
                             throw new RuntimeException(ex);
                         }
@@ -279,6 +288,35 @@ public class HelloController extends DataBaseHandler {
         }
     }
 
+    private void updateCartButton (Button button, String recipeName) {
+        try {
+            boolean isInBasket = checkBasketFood(recipeName);
+            if (isInBasket) {
+                button.setText("Удалить из корзины");
+            } else {
+                button.setText("Добавить в корзину");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public void showBasket(VBox root) {
+        try {
+            List<String> basketIngredients = getBasketIngredients();
+            root.getChildren().clear(); // Очистка панели перед добавлением новых ингредиентов
+            for (String ingredient : basketIngredients) {
+                Label label = new Label(ingredient);
+                root.getChildren().add(label);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Вывод информации об ошибке
+        }
+    }
+
+
+
     public void onBButtonClick() {
         Stage categoryAStage = new Stage();
         categoryAStage.setTitle("Избранное");
@@ -311,7 +349,9 @@ public class HelloController extends DataBaseHandler {
         VBox root = new VBox();
         root.setAlignment(Pos.CENTER);
 
-        Scene categoryAScene = new Scene(root, 400, 300);
+        showBasket(root);
+
+        Scene categoryAScene = new Scene(root, 600, 500);
         categoryAStage.setScene(categoryAScene);
 
         categoryAStage.show();
