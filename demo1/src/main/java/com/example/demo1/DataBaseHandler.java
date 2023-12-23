@@ -534,6 +534,65 @@ public class DataBaseHandler {
         return recipes;
     }
 
+    //Удаление в каждой таблице по foodID
+    public void deleteFoodFromFavorite(Integer id) throws SQLException {
+        Statement statement = getDbConnection().createStatement();
+        PreparedStatement stmt = dbConnection.prepareStatement("DELETE FROM favorite WHERE foodID = ?");
+        stmt.setInt(1,id);
+        stmt.executeUpdate();
+    }
+    public void deleteFoodFromBasket(Integer id) throws SQLException {
+        Statement statement = getDbConnection().createStatement();
+        PreparedStatement stmt = dbConnection.prepareStatement("DELETE FROM basket WHERE foodID = ?");
+        stmt.setInt(1,id);
+        stmt.executeUpdate();
+    }
+    public void deleteFoodFromCaloric(Integer id) throws SQLException {
+        Statement statement = getDbConnection().createStatement();
+        PreparedStatement stmt = dbConnection.prepareStatement("DELETE FROM caloric WHERE foodID = ?");
+        stmt.setInt(1,id);
+        stmt.executeUpdate();
+    }
+    public void deleteFoodFromStructure(Integer id) throws SQLException {
+        Statement statement = getDbConnection().createStatement();
+        PreparedStatement stmt = dbConnection.prepareStatement("DELETE FROM structure WHERE foodID = ?");
+        stmt.setInt(1,id);
+        stmt.executeUpdate();
+    }
+    public void deleteFoodFromPreparetion(Integer id) throws SQLException {
+        Statement statement = getDbConnection().createStatement();
+        PreparedStatement stmt = dbConnection.prepareStatement("DELETE FROM preparation WHERE foodID = ?");
+        stmt.setInt(1,id);
+        stmt.executeUpdate();
+    }
+    public void deleteFoodFromFood(Integer id) throws SQLException {
+        Statement statement = getDbConnection().createStatement();
+        PreparedStatement stmt = dbConnection.prepareStatement("DELETE FROM food WHERE id = ?");
+        stmt.setInt(1,id);
+        stmt.executeUpdate();
+    }
+
+    //Удаляет все что связано с выбранной ядой
+    public void deleteFoodByName(String name) throws  SQLException{
+        Statement statement = getDbConnection().createStatement();
+        //получаем id блюда которое нужно удалить
+        PreparedStatement stmt = dbConnection.prepareStatement("SELECT id FROM food WHERE name = ?");
+        stmt.setString(1,name);
+        ResultSet resultSet = stmt.executeQuery();
+        resultSet.next();
+        Integer id = resultSet.getInt(1);
+        //удаляем из всех таблиц все что связано с нужным блюдом
+        deleteFoodFromFavorite(id);
+        deleteFoodFromBasket(id);
+        deleteFoodFromCaloric(id);
+        deleteFoodFromStructure(id);
+        deleteFoodFromPreparetion(id);
+        deleteFoodFromFood(id);
+
+
+
+    }
+
     public static void sortRecipesByName(List<Recipe> recipes) {
         recipes.sort(new Comparator<Recipe>() {
             @Override
@@ -550,17 +609,13 @@ public class DataBaseHandler {
         List<Integer> foodIDs = Arrays.asList(2, 3); // Ваш список foodID
         List<Recipe> recipes = d.getAllRecipe();
 
-        for (Recipe recipe: recipes){
-            System.out.println(recipe.getIngredients());
-        }
-
-        for (String ingr: d.getBasketIngredients()){
-            System.out.println(ingr);
-        }
-
-
-
-
+//        for (Recipe recipe: recipes){
+//            System.out.println(recipe.getIngredients());
+//        }
+//
+//        for (String ingr: d.getBasketIngredients()){
+//            System.out.println(ingr);
+//        }
 
     }
     }
