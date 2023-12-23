@@ -11,18 +11,18 @@ public class DataBaseHandler {
     private Properties properties = new Properties();
     private Connection dbConnection;
 
-//    Подключение к базе данных
+    //    Подключение к базе данных
     public Connection getDbConnection() throws SQLException {
 
-    try (InputStream input = new FileInputStream("src/main/resources/sql.properties")) {
-        properties.load(input);
-    } catch (IOException e) {
-        throw new RuntimeException(e);
-    }
+        try (InputStream input = new FileInputStream("src/main/resources/sql.properties")) {
+            properties.load(input);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-    dbConnection = DriverManager.getConnection(properties.getProperty("database.url"), properties.getProperty("database.login"), properties.getProperty("database.pass"));
-    return dbConnection;
-}
+        dbConnection = DriverManager.getConnection(properties.getProperty("database.url"), properties.getProperty("database.login"), properties.getProperty("database.pass"));
+        return dbConnection;
+    }
 
     public List<String> GetNotAllData() throws SQLException {
         List<String> cities = new ArrayList<>();
@@ -127,16 +127,16 @@ public class DataBaseHandler {
 
 
             try(PreparedStatement statement = getDbConnection().prepareStatement("SELECT * FROM structure " +
-                                                                                "WHERE foodID = (SELECT food.id FROM food where name = ?) " +
-                                                                                "AND productID = (SELECT products.id FROM products where name = ?)")){
+                    "WHERE foodID = (SELECT food.id FROM food where name = ?) " +
+                    "AND productID = (SELECT products.id FROM products where name = ?)")){
                 statement.setString(1, recipe.getName());
                 statement.setString(2, words[0].trim());
                 ResultSet resultSet = statement.executeQuery();
                 if(!resultSet.next()) {
                     PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO structure (foodID, productID, countMeasurement, measurement) " +
-                                                                                            "VALUES ((SELECT food.id FROM food where name = ?)," +
-                                                                                            "(SELECT products.id FROM products where name = ?)," +
-                                                                                            " ?, ?)");
+                            "VALUES ((SELECT food.id FROM food where name = ?)," +
+                            "(SELECT products.id FROM products where name = ?)," +
+                            " ?, ?)");
 
                     insertStatement.setString(1, recipe.getName());
                     insertStatement.setString(2, words[0].trim());
@@ -148,8 +148,8 @@ public class DataBaseHandler {
                     insertStatement.setString(4,measurement[1].trim());
                     insertStatement.executeUpdate();
                 } else {
-                System.out.println("Уже есть такая структура");
-            }
+                    System.out.println("Уже есть такая структура");
+                }
 
 
             } catch (SQLException e) {
@@ -167,7 +167,7 @@ public class DataBaseHandler {
             if(!resultSet.next()) {
 
                 PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO caloric (foodID, proteins, fats, carbohydrates, calories) " +
-                                                                                            "VALUES((SELECT food.id FROM food where name = ?), ?, ?, ?, ?)");
+                        "VALUES((SELECT food.id FROM food where name = ?), ?, ?, ?, ?)");
 
 
                 insertStatement.setString(1, recipe.getName());
@@ -191,8 +191,8 @@ public class DataBaseHandler {
         int i = 1;
         for (String textRow : recipe.getCookingStepsText()){
             try (PreparedStatement statement = getDbConnection().prepareStatement("SELECT foodID FROM preparation " +
-                                                                                    "WHERE foodID = (SELECT food.id FROM food where name = ?) " +
-                                                                                    "AND step = ?")) {
+                    "WHERE foodID = (SELECT food.id FROM food where name = ?) " +
+                    "AND step = ?")) {
 
                 statement.setString(1, recipe.getName());
                 statement.setInt(2,i);
@@ -327,8 +327,8 @@ public class DataBaseHandler {
     public List<String> getFoodIngredients(int id) throws  SQLException{
         List<String> ingredients = new ArrayList<>();
         PreparedStatement stmt = dbConnection.prepareStatement("SELECT products.name,structure.countMeasurement, structure.measurement  FROM java.structure " +
-                                                                    "JOIN products ON java.structure.productID = products.id " +
-                                                                    "WHERE java.structure.foodID = ?");
+                "JOIN products ON java.structure.productID = products.id " +
+                "WHERE java.structure.foodID = ?");
         stmt.setInt(1, id);
         ResultSet resultSet = stmt.executeQuery();
         while (resultSet.next()) {
@@ -441,11 +441,14 @@ public class DataBaseHandler {
             Recipe recipe = createRecipe(id);
             recipes.add(recipe);
         }
+
         return recipes;
     }
     public List<String> getBasketIngredients() throws SQLException {
         List<Integer> ids = getBasketFoodIds();
         StringBuilder builder = new StringBuilder();
+
+
         for (int i = 0; i < ids.size(); i++) {
             if (i > 0) {
                 builder.append(", ");
@@ -480,6 +483,14 @@ public class DataBaseHandler {
     }
     public boolean checkFavoriteFood(String name) throws  SQLException{
         PreparedStatement insertStatement = getDbConnection().prepareStatement("SELECT * FROM favorite WHERE favorite.foodID = (select id from food WHERE food.name = ?)");
+        insertStatement.setString(1,name);
+        ResultSet resultSet = insertStatement.executeQuery();
+
+        return resultSet.next();
+
+    }
+    public boolean checkBasketFood(String name) throws  SQLException{
+        PreparedStatement insertStatement = getDbConnection().prepareStatement("SELECT * FROM basket WHERE basket.foodID = (select id from food WHERE food.name = ?)");
         insertStatement.setString(1,name);
         ResultSet resultSet = insertStatement.executeQuery();
 
@@ -605,7 +616,14 @@ public class DataBaseHandler {
         DataBaseHandler d = new DataBaseHandler();
         List<Integer> foodIDs = Arrays.asList(2, 3); // Ваш список foodID
         List<Recipe> recipes = d.getAllRecipe();
-        List<String> result = d.getBasketIngredients();
-        System.out.println(result);
+
+//        for (Recipe recipe: recipes){
+//            System.out.println(recipe.getIngredients());
+//        }
+//
+//        for (String ingr: d.getBasketIngredients()){
+//            System.out.println(ingr);
+//        }
+
     }
 }
