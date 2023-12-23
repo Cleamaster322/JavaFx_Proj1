@@ -23,7 +23,7 @@ public class DataBaseHandler {
         dbConnection = DriverManager.getConnection(properties.getProperty("database.url"), properties.getProperty("database.login"), properties.getProperty("database.pass"));
         return dbConnection;
     }
-    
+
     public void createCategory(Recipe recipe) {
         //Проверка есть ли такая категория в бд
         try(PreparedStatement statement = getDbConnection().prepareStatement("SELECT * FROM category WHERE name LIKE ?")){
@@ -421,6 +421,10 @@ public class DataBaseHandler {
     }
     public List<String> getBasketIngredients() throws SQLException {
         List<Integer> ids = getBasketFoodIds();
+        if (ids.isEmpty()){
+            System.out.println("Корзина пустая");
+            return new ArrayList<>();
+        }
         String query = getString(ids);
 
         PreparedStatement pstmt = dbConnection.prepareStatement(query);
