@@ -441,14 +441,11 @@ public class DataBaseHandler {
             Recipe recipe = createRecipe(id);
             recipes.add(recipe);
         }
-
         return recipes;
     }
     public List<String> getBasketIngredients() throws SQLException {
         List<Integer> ids = getBasketFoodIds();
         StringBuilder builder = new StringBuilder();
-
-
         for (int i = 0; i < ids.size(); i++) {
             if (i > 0) {
                 builder.append(", ");
@@ -608,14 +605,7 @@ public class DataBaseHandler {
         DataBaseHandler d = new DataBaseHandler();
         List<Integer> foodIDs = Arrays.asList(2, 3); // Ваш список foodID
         List<Recipe> recipes = d.getAllRecipe();
-
-//        for (Recipe recipe: recipes){
-//            System.out.println(recipe.getIngredients());
-//        }
-//
-//        for (String ingr: d.getBasketIngredients()){
-//            System.out.println(ingr);
-//        }
-
+        List<String> result = d.getBasketIngredients();
+        System.out.println(result);
     }
-    }
+}

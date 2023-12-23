@@ -1,7 +1,5 @@
 package com.example.demo1;
 
-import javafx.application.Platform;
-import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -11,8 +9,6 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.util.List;
 import javafx.scene.control.*;
@@ -22,9 +18,7 @@ import javafx.scene.layout.GridPane;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-public class HelloController extends DataBaseHandler { //ожидает передачи интерфейса, фейкового класса. Но нужно получить объект, который наследуется у интерфейса и нужен класс, который управляет зависимостями у интерфейса.
-    //паттерн depencity inject
-
+public class HelloController extends DataBaseHandler {
 
     ObservableList<String> categories = FXCollections.observableArrayList("Бульоны и супы", "Десерты", "Выпечка", "Горячие блюда");
 
@@ -43,7 +37,7 @@ public class HelloController extends DataBaseHandler { //ожидает пере
         gridPane.setHgap(50);
         gridPane.setVgap(50);
 
-//        addButtonsToGrid(gridPane);
+        addProductButton(gridPane, null);
 
         gridPane.setAlignment(Pos.CENTER);
 
@@ -61,156 +55,38 @@ public class HelloController extends DataBaseHandler { //ожидает пере
         categoryAStage.show();
     }
 
-    private void addButtonsToGrid(GridPane gridPane) {
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 3; col++) {
-                int index = row * 3 + col;
-                Button button = new Button("Блюдо " + (index + 1));
-                button.setPrefSize(150, 100);
-
-                StackPane buttonContainer = new StackPane(); // Используем StackPane для перекрытия кнопок
-                buttonContainer.setAlignment(Pos.TOP_RIGHT);
-
-                Button heartButton = new Button("A");
-                heartButton.setPrefSize(20, 20);
-
-                heartButton.setUserData(button);
-
-                buttonContainer.getChildren().addAll(button, heartButton);
-
-                heartButton.setOnAction(e -> {
-                    // Копируем основную кнопку в окно "Избранное"
-                    Button selectedButton = (Button) heartButton.getUserData();
-                    addFavoriteButtonAction(selectedButton);
-                });
-
-                gridPane.add(buttonContainer, col, row);
-            }
-        }
-    }
-
-    private void addFavoriteButtonAction(Button selectedButton) {
-        Button clonedButton = new Button(selectedButton.getText());
-        favoritesBox.getChildren().add(clonedButton);
-    }
-
-
-    private void addCitiesToEmptyPane(Pane emptyPane, List<String> cities) {
-        VBox cityContainer = new VBox();
-        cityContainer.setSpacing(10);
-
-        for (String city : cities) {
-            Label cityLabel = new Label(city);
-            cityContainer.getChildren().add(cityLabel);
-        }
-
-        emptyPane.getChildren().add(cityContainer);
-    }
-
-    private void addEmptyPaneToGrid(GridPane gridPane) {
-        Pane emptyPane = new Pane();
-        emptyPane.setStyle("-fx-background-color: lightgray;");
-        emptyPane.setPrefSize(350, 200);
-
-        gridPane.add(emptyPane, 0, 0, 3, 3);
-    }
-
-
     private void updateGridPane(GridPane gridPane, String selectedCategory) {
         gridPane.getChildren().clear(); // Очищаем содержимое GridPane
 
         switch (selectedCategory) {
             case "Бульоны и супы":
 
-                addProductButtonForCategory(gridPane, "Бульоны и супы");
+                addProductButton(gridPane, "Бульоны и супы");
                 break;
             case "Десерты":
-                addProductButtonForCategory(gridPane, "Десерты");
+                addProductButton(gridPane, "Десерты");
                 break;
             case "Выпечка":
-                addProductButtonForCategory(gridPane, "Выпечка");
+                addProductButton(gridPane, "Выпечка");
                 break;
             case "Горячие блюда":
-                addProductButtonForCategory(gridPane, "Горячие блюда");
+                addProductButton(gridPane, "Горячие блюда");
             default:
                 break;
         }
     }
 
-//    private void addProductComboBox(GridPane gridPane) {
-//        ComboBox<String> productComboBox = new ComboBox<>();
-//
-//        try {
-//            List<String> cities = GetNotAllData();
-//            ObservableList<String> cityList = FXCollections.observableArrayList(cities);
-//
-//            FilteredList<String> filteredProducts = new FilteredList<>(cityList, p -> true);
-//
-//            productComboBox.setItems(filteredProducts);
-//
-//
-//            productComboBox.setEditable(true);
-//
-//            // Добавляем слушатель к свойству textProperty ComboBox
-//            productComboBox.getEditor().textProperty().addListener((obs, oldValue, newValue) -> {
-//                // Если выбранный элемент равен текущему вводу, то не фильтруем список
-//                if (productComboBox.getSelectionModel().getSelectedItem() == null ||
-//                        !productComboBox.getSelectionModel().getSelectedItem().equals(productComboBox.getEditor().getText())) {
-//                    // Фильтруем список продуктов
-//                    filteredProducts.setPredicate(product -> product.toLowerCase().contains(newValue.toLowerCase()));
-//                }
-//            });
-//
-//            gridPane.add(productComboBox, 0, 0);
-//
-//            productComboBox.setOnAction(e -> {
-//                String selectedCity = productComboBox.getValue();
-//                if (selectedCity != null && !selectedCity.isEmpty() && cities.contains(selectedCity)) {
-//                    System.out.println("Выбран продукт: " + selectedCity);
-//                    Platform.runLater(() -> {
-//                        if (!productComboBox.getItems().isEmpty()) {
-//                            productComboBox.getSelectionModel().clearSelection();
-//                        }
-//                    });
-//                }
-//            });
-//        } catch (SQLException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-
-//    public void onCategoryNoneSelected(GridPane gridPane) { // Добавлен аргумент gridPane
-//        try {
-//            List<String> cities = GetNotAllData();
-//
-//            addCitiesToEmptyPane((Pane) gridPane.getChildren().get(0), cities);
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-    private void addImageToButton(Button button) {
-
-        RecipeParser recipeParser = new RecipeParser(); //удали меня
-        Recipe recipe = recipeParser.parse("https://www.povarenok.ru/recipes/show/47352/");
-        String imagePath = recipe.getMainPhoto();
-        Image image = new Image(imagePath);
-
-        ImageView imageView = new ImageView(image);
-
-        imageView.setFitWidth(100);
-        imageView.setFitHeight(100);
-
-        button.setGraphic(imageView);
-
-    }
-
-
-    public void addProductButtonForCategory(GridPane gridPane, String category) {
+    public void addProductButton(GridPane gridPane, String category) {
         try {
-            List<Recipe> recipes = getCategoryRecipe(category);
+            List<Recipe> recipes;
+            if (category == null) {
+                recipes = getAllRecipe();
+            } else if (category.equals("Избранное")) {
+                recipes = getFavoriteRecipe();
+            } else {
+                recipes = getCategoryRecipe(category);
+            }
             ObservableList<Recipe> recipeList = FXCollections.observableArrayList(recipes);
-
             // Установка горизонтального интервала между кнопками
             gridPane.setHgap(20);
 
@@ -260,8 +136,6 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                     ImageView imageViewRecipe = new ImageView(new Image(recipe.getMainPhoto()));
                     imageViewRecipe.setFitWidth(200);
                     imageViewRecipe.setFitHeight(200);
-
-
 
                     // Создание кнопок "Добавить в избранное" и "Добавить в корзину"
                     Button addToFavoritesButton = new Button();
@@ -382,10 +256,12 @@ public class HelloController extends DataBaseHandler { //ожидает пере
                 });
             }
 
+            // остальной код неизменен
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
+
 
     private void updateFavoriteButton(Button button, String recipeName) {
         try {
@@ -400,190 +276,27 @@ public class HelloController extends DataBaseHandler { //ожидает пере
         }
     }
 
-
-    public void addProductAllButton(GridPane gridPane) {
-        try {
-            List<Recipe> recipes = getAllRecipe();
-            ObservableList<Recipe> recipeList = FXCollections.observableArrayList(recipes);
-
-            // Установка горизонтального интервала между кнопками
-            gridPane.setHgap(20);
-
-            for (int i = 0; i < recipeList.size(); i++) {
-                Recipe recipe = recipeList.get(i);
-
-                // Создание StackPane для наложения текста на изображение
-                StackPane stackPane = new StackPane();
-
-                // Создание изображения
-                ImageView imageView = new ImageView(new Image(recipe.getMainPhoto()));
-                imageView.setPreserveRatio(true);
-                imageView.setFitWidth(200);
-                imageView.setFitHeight(200);
-                stackPane.getChildren().add(imageView);
-
-                // Создание текста
-                Label label = new Label();
-                label.setText(recipe.getName());
-                label.setFont(new Font("Arial", 14));
-                label.setStyle("-fx-text-fill: white;");
-                stackPane.getChildren().add(label);
-
-                // Создание кнопки
-                Button recipeButton = new Button();
-                recipeButton.setGraphic(stackPane);
-                recipeButton.setPrefSize(200, 200);
-
-                // Добавление кнопки в GridPane
-                int column = i % 3; // Определение столбца для кнопки
-                int row = i / 3; // Определение строки для кнопки
-                gridPane.add(recipeButton, column, row);
-
-                // Обработчик событий для кнопки
-                recipeButton.setOnAction(event -> {
-                    // Создание нового окна
-                    Stage categoryRecipeStage = new Stage();
-                    categoryRecipeStage.setTitle(recipe.getName());
-
-                    VBox root = new VBox();
-                    root.setSpacing(10);
-                    root.setPadding(new Insets(10));
-
-                    HBox photoRecipeBox = new HBox(); // Создаем горизонтальный контейнер для изображения и текста
-                    photoRecipeBox.setSpacing(10);
-
-                    ImageView imageViewRecipe = new ImageView(new Image(recipe.getMainPhoto()));
-                    imageViewRecipe.setFitWidth(200);
-                    imageViewRecipe.setFitHeight(200);
-
-
-
-                    // Создание кнопок "Добавить в избранное" и "Добавить в корзину"
-                    Button addToFavoritesButton = new Button();
-                    updateFavoriteButton(addToFavoritesButton, recipe.getName());
-
-                    addToFavoritesButton.setOnAction(a -> {
-                        try {
-                            boolean isInFavorites = checkFavoriteFood(recipe.getName());
-                            if (isInFavorites) {
-                                // Удалить из избранного
-                                removeFavorite(recipe.getName());
-                                updateFavoriteButton(addToFavoritesButton, recipe.getName());
-                            } else {
-                                // Добавить в избранное
-                                addToFavorite(recipe.getName());
-                                updateFavoriteButton(addToFavoritesButton, recipe.getName());
-                            }
-                        } catch (SQLException e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
-
-                    Button addToCartButton = new Button("Добавить в корзину");
-                    addToCartButton.setOnAction(e -> {
-                        try {
-                            addToBasket(recipe.getName()); // Предположим, что у рецепта есть метод getId() для получения ID
-                        } catch (SQLException ex) {
-                            throw new RuntimeException(ex);
-                        }
-                    });
-
-                    VBox buttonsBox = new VBox(5); // Контейнер для кнопок
-                    buttonsBox.setAlignment(Pos.TOP_RIGHT);
-                    buttonsBox.getChildren().addAll(addToFavoritesButton, addToCartButton);
-
-                    Label photoRecipeTextLabel = new Label("Главное фото:");
-
-                    photoRecipeBox.getChildren().addAll(photoRecipeTextLabel, imageViewRecipe);
-
-                    Text descriptionText = new Text(recipe.getDescription());
-                    descriptionText.setWrappingWidth(400); // Задаем ширину, чтобы текст переносился
-
-                    VBox descriptionBox = new VBox(); // Создаем контейнер для текста
-                    Label descriptionLabel1 = new Label("Описание: ");
-                    descriptionBox.getChildren().addAll(descriptionLabel1, descriptionText);
-
-                    // Получаем список ингредиентов
-                    List<String> ingredients = recipe.getIngredients();
-
-                    VBox ingredientsBox = new VBox();
-                    Label ingredientsLabel = new Label("Список ингредиентов:");
-
-                    ingredientsBox.getChildren().add(ingredientsLabel);
-
-                    for (String ingredient : ingredients) {
-                        Label ingredientLabel = new Label(ingredient);
-                        ingredientsBox.getChildren().add(ingredientLabel);
-                    }
-
-                    // Получаем списки шагов приготовления и соответствующих изображений
-                    List<String> cookingSteps = recipe.getCookingStepsText();
-                    List<String> cookingImages = recipe.getCookingStepsImg();
-
-                    VBox cookingStepsBox = new VBox();
-                    Label cookingStepsLabel = new Label("Шаги приготовления:");
-
-                    cookingStepsBox.getChildren().add(cookingStepsLabel);
-
-                    if (cookingSteps != null && cookingImages != null && cookingSteps.size() == cookingImages.size()) {
-                        // Проходимся по каждому шагу приготовления и добавляем их в VBox
-                        for (int j = 0; j < cookingSteps.size(); j++) {
-                            String step = cookingSteps.get(j);
-                            String stepImage = cookingImages.get(j);
-
-                            Label stepLabel = new Label("Шаг " + (j + 1) + ": " + step);
-
-                            ImageView stepImageView = new ImageView(new Image(stepImage));
-                            stepImageView.setFitWidth(200);
-                            stepImageView.setFitHeight(200);
-
-                            VBox stepContent = new VBox();
-                            stepContent.getChildren().addAll(stepLabel, stepImageView);
-                            cookingStepsBox.getChildren().add(stepContent);
-                        }
-                    } else {
-                        // Если данные не доступны или несоответствуют, выводим сообщение об ошибке
-                        Label errorLabel = new Label("Недостаточно данных о шагах приготовления или изображениях");
-                        cookingStepsBox.getChildren().add(errorLabel);
-                    }
-
-                    Label nameRecipeTextLabel = new Label("Название: " + recipe.getName());
-                    Label categoryRecipeTextLabel = new Label("Категории: " + recipe.getCategories());
-                    Label cookingTimeRecipeTextLabel = new Label("Время приготовления: " + recipe.getCookingTime());
-                    Label caloriesRecipeTextLabel = new Label("Калории: " + recipe.getCalories());
-                    Label proteinRecipeTextLabel = new Label("Белки: " + recipe.getProtein());
-                    Label fatRecipeTextLabel = new Label("Жиры: " + recipe.getFat());
-                    Label carbohydratesRecipeTextLabel = new Label("Углеводы: " + recipe.getCarbohydrates());
-
-
-                    root.getChildren().addAll(addToFavoritesButton, addToCartButton, nameRecipeTextLabel, photoRecipeBox, descriptionBox, categoryRecipeTextLabel, cookingTimeRecipeTextLabel, caloriesRecipeTextLabel, proteinRecipeTextLabel, fatRecipeTextLabel, carbohydratesRecipeTextLabel, ingredientsBox, cookingStepsBox);
-
-                    ScrollPane scrollPane = new ScrollPane(root);
-
-                    Scene scene = new Scene(scrollPane, 800, 600);
-                    categoryRecipeStage.setScene(scene);
-                    categoryRecipeStage.show();
-                });
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    private VBox favoritesBox = new VBox();
-
     public void onBButtonClick() {
         Stage categoryAStage = new Stage();
         categoryAStage.setTitle("Избранное");
 
         VBox root = new VBox();
+        root.setSpacing(30);
 
-        Scene categoryAScene = new Scene(root, 400, 300);
+        GridPane gridPane = new GridPane();
+        gridPane.setHgap(50);
+        gridPane.setVgap(50);
+
+        addProductButton(gridPane, "Избранное");
+
+        gridPane.setAlignment(Pos.CENTER);
+
+        root.getChildren().addAll(gridPane);
+
+        ScrollPane scrollPane = new ScrollPane(gridPane);
+
+        Scene categoryAScene = new Scene(scrollPane, 800, 600);
         categoryAStage.setScene(categoryAScene);
-
-        root.getChildren().add(favoritesBox);
 
         categoryAStage.show();
     }
@@ -594,12 +307,6 @@ public class HelloController extends DataBaseHandler { //ожидает пере
 
         VBox root = new VBox();
         root.setAlignment(Pos.CENTER);
-
-        Button imageButton = new Button();
-        imageButton.setPrefSize(200, 150);
-
-        addImageToButton(imageButton);
-        root.getChildren().add(imageButton);
 
         Scene categoryAScene = new Scene(root, 400, 300);
         categoryAStage.setScene(categoryAScene);
@@ -835,5 +542,4 @@ public class HelloController extends DataBaseHandler { //ожидает пере
         categoryAStage.setScene(categoryAScene);
         categoryAStage.show();
     }
-
 }
