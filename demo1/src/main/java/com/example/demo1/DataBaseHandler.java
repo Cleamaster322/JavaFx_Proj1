@@ -125,6 +125,8 @@ public class DataBaseHandler {
                     insertStatement.setString(2, words[0].trim());
                     if (measurement[0].isEmpty()) {
                         insertStatement.setNull(3,Types.INTEGER);
+                    } else if(measurement[0].contains("/")){
+                        insertStatement.setFloat(3,(Float.parseFloat(measurement[0].trim().split("/")[0]) / Float.parseFloat(measurement[0].trim().split("/")[1])));
                     } else{
                         insertStatement.setFloat(3, Float.parseFloat(measurement[0].trim().replace(",",".")));
                     }
@@ -152,8 +154,6 @@ public class DataBaseHandler {
                 PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO caloric (foodID, proteins, fats, carbohydrates, calories) " +
                         "VALUES((SELECT food.id FROM food where name = ?), ?, ?, ?, ?)");
 
-                String[] a = recipe.getCalories().split(" ");
-                float b = Float.parseFloat(a[0]);
                 insertStatement.setString(1, recipe.getName());
                 insertStatement.setFloat(2, Float.parseFloat(recipe.getProtein().split(" ")[0]));
                 insertStatement.setFloat(3, Float.parseFloat(recipe.getFat().split(" ")[0]));
@@ -615,7 +615,11 @@ public class DataBaseHandler {
     public static void main(String[] args) throws SQLException {
         DataBaseHandler d = new DataBaseHandler();
         d.getDbConnection();
-        d.getSortingByFoodTime("DESC");
+//        List<Recipe> recipes = d.getFilteredRecipes("Яблоко");
+
+//        for(Recipe recipe:recipes){
+            System.out.println();
+//        }
 
     }
 }
