@@ -313,15 +313,16 @@ public class DataBaseHandler {
         return ingredients;
     }
     public String getFoodCalories(int id) throws SQLException{
-        PreparedStatement stmt = dbConnection.prepareStatement("SELECT calories FROM caloric WHERE id = ?");
+        System.out.println(id);
+        PreparedStatement stmt = dbConnection.prepareStatement("SELECT calories FROM caloric WHERE foodID = ?");
         stmt.setInt(1, id);
         ResultSet resultSet = stmt.executeQuery();
         resultSet.next();
-
+        System.out.println(resultSet.getString(1));
         return resultSet.getString(1);
     }
     public String getFoodProtein(int id) throws SQLException{
-        PreparedStatement stmt = dbConnection.prepareStatement("SELECT proteins FROM caloric WHERE id = ?");
+        PreparedStatement stmt = dbConnection.prepareStatement("SELECT proteins FROM caloric WHERE foodID = ?");
         stmt.setInt(1, id);
         ResultSet resultSet = stmt.executeQuery();
         resultSet.next();
@@ -329,7 +330,7 @@ public class DataBaseHandler {
         return resultSet.getString(1);
     }
     public String getFoodFat(int id) throws SQLException{
-        PreparedStatement stmt = dbConnection.prepareStatement("SELECT fats FROM caloric WHERE id = ?");
+        PreparedStatement stmt = dbConnection.prepareStatement("SELECT fats FROM caloric WHERE foodID = ?");
         stmt.setInt(1, id);
         ResultSet resultSet = stmt.executeQuery();
         resultSet.next();
@@ -337,7 +338,7 @@ public class DataBaseHandler {
         return resultSet.getString(1);
     }
     public String getFoodCarbohydrates(int id) throws SQLException{
-        PreparedStatement stmt = dbConnection.prepareStatement("SELECT Carbohydrates FROM caloric WHERE id = ?");
+        PreparedStatement stmt = dbConnection.prepareStatement("SELECT Carbohydrates FROM caloric WHERE foodID = ?");
         stmt.setInt(1, id);
         ResultSet resultSet = stmt.executeQuery();
         resultSet.next();
