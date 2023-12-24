@@ -46,7 +46,6 @@ public class DataBaseHandler {
     public void createProducts(Recipe recipe){
         for (String ingredient : recipe.getIngredients()) {
             String[] words = ingredient.split(" — ");
-            System.out.println(Arrays.toString(words));
             //Проверка есть ли такой продукт в бд
             try (PreparedStatement statement = getDbConnection().prepareStatement("SELECT * FROM products WHERE name LIKE ?")) {
                 statement.setString(1, words[0].trim());
@@ -314,12 +313,10 @@ public class DataBaseHandler {
         return ingredients;
     }
     public String getFoodCalories(int id) throws SQLException{
-        System.out.println(id);
         PreparedStatement stmt = dbConnection.prepareStatement("SELECT calories FROM caloric WHERE foodID = ?");
         stmt.setInt(1, id);
         ResultSet resultSet = stmt.executeQuery();
         resultSet.next();
-        System.out.println(resultSet.getString(1));
         return resultSet.getString(1);
     }
     public String getFoodProtein(int id) throws SQLException{
