@@ -153,12 +153,13 @@ public class DataBaseHandler {
                 PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO caloric (foodID, proteins, fats, carbohydrates, calories) " +
                         "VALUES((SELECT food.id FROM food where name = ?), ?, ?, ?, ?)");
 
-
+                String[] a = recipe.getCalories().split(" ");
+                float b = Float.parseFloat(a[0]);
                 insertStatement.setString(1, recipe.getName());
-                insertStatement.setFloat(2, Float.parseFloat(recipe.getProtein()));
-                insertStatement.setFloat(3, Float.parseFloat(recipe.getFat()));
-                insertStatement.setFloat(4, Float.parseFloat(recipe.getCarbohydrates()));
-                insertStatement.setFloat(5, Float.parseFloat(recipe.getCalories()));
+                insertStatement.setFloat(2, Float.parseFloat(recipe.getProtein().split(" ")[0]));
+                insertStatement.setFloat(3, Float.parseFloat(recipe.getFat().split(" ")[0]));
+                insertStatement.setFloat(4, Float.parseFloat(recipe.getCarbohydrates().split(" ")[0]));
+                insertStatement.setFloat(5, Float.parseFloat(recipe.getCalories().split(" ")[0]));
                 insertStatement.executeUpdate();
 
             } else {
@@ -529,14 +530,14 @@ public class DataBaseHandler {
         List<Recipe> recipes = new ArrayList<>();
         List<Integer> ids = new ArrayList<>();
         PreparedStatement stmt = dbConnection.prepareStatement("SELECT id," +
-                " ((CASE WHEN cookTime LIKE '% час%' OR cookTime LIKE '% часа%'" +
+                " ((CASE WHEN cookTime LIKE '% час%'" +
                 "        THEN CASE " +
                 "               WHEN LOCATE('.', SUBSTRING_INDEX(cookTime, ' час', 1)) > 0 THEN CAST(SUBSTRING_INDEX(cookTime, ' час', 1) AS DECIMAL(10,2)) * 60" +
                 "               ELSE CAST(SUBSTRING_INDEX(cookTime, ' час', 1) AS UNSIGNED) * 60" +
                 "             END" +
                 "        ELSE 0" +
                 "   END) +" +
-                " (CASE WHEN cookTime LIKE '% минут'" +
+                " (CASE WHEN cookTime LIKE '% мин%'" +
                 "        THEN CAST(SUBSTRING_INDEX(cookTime, ' минут', 1) AS UNSIGNED)" +
                 "        ELSE 0" +
                 "   END)" +
@@ -617,7 +618,7 @@ public class DataBaseHandler {
     public static void main(String[] args) throws SQLException {
         DataBaseHandler d = new DataBaseHandler();
         d.getDbConnection();
-        d.deleteFoodByName("Cгущeнное молоко собственными руками");
+        d.getSortingByFoodTime("DESC");
 
     }
 }
