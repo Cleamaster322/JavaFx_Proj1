@@ -44,12 +44,12 @@ public class DataBaseHandler {
     }
 
     public void createProducts(Recipe recipe){
-
         for (String ingredient : recipe.getIngredients()) {
             String[] words = ingredient.split(" — ");
+            System.out.println(Arrays.toString(words));
             //Проверка есть ли такой продукт в бд
             try (PreparedStatement statement = getDbConnection().prepareStatement("SELECT * FROM products WHERE name LIKE ?")) {
-                statement.setString(1, "%" + words[0].trim() + "%");
+                statement.setString(1, words[0].trim());
                 ResultSet resultSet = statement.executeQuery();
                 //Если нет то дабавляем ее
                 if (!resultSet.next()) {
@@ -72,13 +72,14 @@ public class DataBaseHandler {
             ResultSet resultSet = statement.executeQuery();
             //Если нет то дабавляем ее
             if (!resultSet.next()) {
-                PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO food (name,categoryID,imgFood,cookTime) " +
+                PreparedStatement insertStatement = getDbConnection().prepareStatement("INSERT INTO food (name,categoryID,imgFood,cookTime,mainDescription) " +
                         "VALUES (?,(SELECT id FROM category where category.name = ?)" +
-                        ",?,?)");
+                        ",?,?,?)");
                 insertStatement.setString(1, recipe.getName());
                 insertStatement.setString(2,recipe.getCategories());
                 insertStatement.setString(3,recipe.getMainPhoto());
                 insertStatement.setString(4,recipe.getCookingTime());
+                insertStatement.setString(5,recipe.getDescription());
                 insertStatement.executeUpdate();
             } else {
                 System.out.println("Уже есть такое блюдо");
@@ -110,7 +111,6 @@ public class DataBaseHandler {
 
 //            System.out.println("1"+ words[0]+" 2"+ Integer.parseInt(measurement[0].trim()) + " 3" +measurement[1]);
 
-
             try(PreparedStatement statement = getDbConnection().prepareStatement("SELECT * FROM structure " +
                     "WHERE foodID = (SELECT food.id FROM food where name = ?) " +
                     "AND productID = (SELECT products.id FROM products where name = ?)")){
@@ -122,7 +122,6 @@ public class DataBaseHandler {
                             "VALUES ((SELECT food.id FROM food where name = ?)," +
                             "(SELECT products.id FROM products where name = ?)," +
                             " ?, ?)");
-
                     insertStatement.setString(1, recipe.getName());
                     insertStatement.setString(2, words[0].trim());
                     if (measurement[0].isEmpty()) {
@@ -617,9 +616,7 @@ public class DataBaseHandler {
     public static void main(String[] args) throws SQLException {
         DataBaseHandler d = new DataBaseHandler();
         d.getDbConnection();
-        List<Recipe> recipes = d.getSortingByFoodTime("desc");
-        for(Recipe recipe:recipes){
-            System.out.println(recipe.getName()+" "+recipe.getCookingTime() + "\n");
-        }
+        d.deleteFoodByName("Cгущeнное молоко собственными руками");
+
     }
 }
