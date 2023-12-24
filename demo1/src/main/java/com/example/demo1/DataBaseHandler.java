@@ -512,12 +512,42 @@ public class DataBaseHandler {
         }
         return ids;
     }
-    public List<Recipe> GetFilteredRecipes() throws SQLException {
+    public List<Recipe> getFilteredRecipes(String product) throws SQLException {
         List<Recipe> recipes = new ArrayList<>();
-        for (Integer id: selectByFilteredProductIds("Картофель")){
+        for (Integer id: selectByFilteredProductIds(product)){
             Recipe recipe = createRecipe(id);
             recipes.add(recipe);
         }
+        return recipes;
+    }
+    // Порядок сортировки(возрастание или убывание)
+    public List<Recipe> getSortingByFoodTime(String order) throws SQLException{
+        List<Recipe> recipes = new ArrayList<>();
+        List<Integer> ids = new ArrayList<>();
+        PreparedStatement stmt = dbConnection.prepareStatement("SELECT id," +
+                " ((CASE WHEN cookTime LIKE '% час%' OR cookTime LIKE '% часа%'" +
+                "        THEN CASE " +
+                "               WHEN LOCATE('.', SUBSTRING_INDEX(cookTime, ' час', 1)) > 0 THEN CAST(SUBSTRING_INDEX(cookTime, ' час', 1) AS DECIMAL(10,2)) * 60" +
+                "               ELSE CAST(SUBSTRING_INDEX(cookTime, ' час', 1) AS UNSIGNED) * 60" +
+                "             END" +
+                "        ELSE 0" +
+                "   END) +" +
+                " (CASE WHEN cookTime LIKE '% минут'" +
+                "        THEN CAST(SUBSTRING_INDEX(cookTime, ' минут', 1) AS UNSIGNED)" +
+                "        ELSE 0" +
+                "   END)" +
+                " ) AS total_minutes " +
+                "FROM food " +
+                "ORDER BY total_minutes " + order +";");
+        ResultSet resultSet = stmt.executeQuery();
+        while (resultSet.next()){
+            ids.add(resultSet.getInt(1));
+        }
+        for (Integer id: ids){
+            Recipe recipe = createRecipe(id);
+            recipes.add(recipe);
+        }
+
         return recipes;
     }
 
@@ -579,5 +609,13 @@ public class DataBaseHandler {
                 return r1.getName().compareTo(r2.getName());
             }
         });
+    }
+    public static void main(String[] args) throws SQLException {
+        DataBaseHandler d = new DataBaseHandler();
+        d.getDbConnection();
+        List<Recipe> recipes = d.getSortingByFoodTime("desc");
+        for(Recipe recipe:recipes){
+            System.out.println(recipe.getName()+" "+recipe.getCookingTime() + "\n");
+        }
     }
 }
