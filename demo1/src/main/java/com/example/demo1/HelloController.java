@@ -17,12 +17,13 @@ import javafx.geometry.Pos;
 import javafx.scene.layout.GridPane;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import java.util.ArrayList;
+
 
 public class HelloController extends DataBaseHandler {
 
-    ObservableList<String> categories = FXCollections.observableArrayList("Бульоны и супы", "Десерты", "Выпечка", "Горячие блюда");
-
     public void onAButtonClick() {
+        ObservableList<String> categories = FXCollections.observableArrayList("Бульоны и супы", "Десерты", "Выпечка", "Горячие блюда");
         Stage categoryAStage = new Stage();
         categoryAStage.setTitle("Блюда");
 
@@ -31,7 +32,11 @@ public class HelloController extends DataBaseHandler {
 
         ComboBox<String> categoryComboBox = new ComboBox<>(categories);
         categoryComboBox.setPromptText("Выбери категорию");
-        root.getChildren().add(categoryComboBox);
+
+        Button sortByTimeButtonASC = new Button("Сортировка по времени по возрастанию");
+        Button sortByTimeButtonDESC = new Button("Сортировка по времени по убыванию");
+
+        root.getChildren().addAll(categoryComboBox, sortByTimeButtonASC, sortByTimeButtonDESC);
 
         GridPane gridPane = new GridPane();
         gridPane.setHgap(50);
@@ -44,7 +49,27 @@ public class HelloController extends DataBaseHandler {
 
         categoryComboBox.setOnAction(e -> {
             String selectedCategory = categoryComboBox.getValue();
-            updateGridPane(gridPane, selectedCategory);
+            List<Recipe> recipes = getRecipesByCategory(selectedCategory);
+            updateGridPane(gridPane, recipes);
+        });
+
+
+        sortByTimeButtonASC.setOnAction(e -> {
+            try {
+                List<Recipe> recipes = getSortingByFoodTime("ASC");
+                updateGridPane(gridPane, recipes);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        });
+
+        sortByTimeButtonDESC.setOnAction(e -> {
+            try {
+                List<Recipe> recipes = getSortingByFoodTime("DESC");
+                updateGridPane(gridPane, recipes);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         });
 
         root.getChildren().add(gridPane);
@@ -56,25 +81,201 @@ public class HelloController extends DataBaseHandler {
         categoryAStage.show();
     }
 
-    private void updateGridPane(GridPane gridPane, String selectedCategory) {
-        gridPane.getChildren().clear(); // Очищаем содержимое GridPane
+    private void updateGridPane(GridPane gridPane, List<Recipe> recipes) {
+        gridPane.getChildren().clear();
 
-        switch (selectedCategory) {
-            case "Бульоны и супы":
-
-                addProductButton(gridPane, "Бульоны и супы");
-                break;
-            case "Десерты":
-                addProductButton(gridPane, "Десерты");
-                break;
-            case "Выпечка":
-                addProductButton(gridPane, "Выпечка");
-                break;
-            case "Горячие блюда":
-                addProductButton(gridPane, "Горячие блюда");
-            default:
-                break;
+        for (int i = 0; i < recipes.size(); i++) {
+            Recipe recipe = recipes.get(i);
+            Button recipeButton = null;
+            try {
+                recipeButton = createRecipeButton(recipe);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            gridPane.add(recipeButton, i % 3, i / 3);
         }
+    }
+
+    private Button createRecipeButton(Recipe recipe) throws SQLException {
+
+        StackPane stackPane = new StackPane();
+
+        ImageView imageView = new ImageView(new Image(recipe.getMainPhoto()));
+        imageView.setPreserveRatio(true);
+        imageView.setFitWidth(200);
+        imageView.setFitHeight(200);
+        stackPane.getChildren().add(imageView);
+
+        Label label = new Label();
+        label.setText(recipe.getName());
+        label.setFont(new Font("Arial", 14));
+        label.setStyle("-fx-text-fill: white;");
+        stackPane.getChildren().add(label);
+
+        Button recipeButton = new Button();
+        recipeButton.setGraphic(stackPane);
+        recipeButton.setPrefSize(200, 200);
+
+
+        recipeButton.setOnAction(event -> {
+            // Создание нового окна
+            Stage categoryRecipeStage = new Stage();
+            categoryRecipeStage.setTitle(recipe.getName());
+
+            VBox root = new VBox();
+            root.setSpacing(10);
+            root.setPadding(new Insets(10));
+
+            GridPane gridPane = new GridPane();
+
+            HBox photoRecipeBox = new HBox(); // Создаем горизонтальный контейнер для изображения и текста
+            photoRecipeBox.setSpacing(10);
+
+            ImageView imageViewRecipe = new ImageView(new Image(recipe.getMainPhoto()));
+            imageViewRecipe.setFitWidth(200);
+            imageViewRecipe.setFitHeight(200);
+
+            // Создание кнопок "Добавить в избранное" и "Добавить в корзину"
+            Button addToFavoritesButton = new Button();
+            updateFavoriteButton(addToFavoritesButton, recipe.getName());
+
+            addToFavoritesButton.setOnAction(a -> {
+                try {
+                    boolean isInFavorites = checkFavoriteFood(recipe.getName());
+                    if (isInFavorites) {
+                        // Удалить из избранного
+                        removeFavorite(recipe.getName());
+                        updateFavoriteButton(addToFavoritesButton, recipe.getName());
+                    } else {
+                        // Добавить в избранное
+                        addToFavorite(recipe.getName());
+                        updateFavoriteButton(addToFavoritesButton, recipe.getName());
+                    }
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            Button addToCartButton = new Button("Добавить в корзину");
+            updateCartButton(addToCartButton, recipe.getName());
+
+            addToCartButton.setOnAction(e -> {
+                try {
+                    boolean isInBasket = checkBasketFood(recipe.getName());
+                    if (isInBasket){
+                        removeBasket(recipe.getName());
+                        updateCartButton(addToCartButton, recipe.getName());
+                    } else {
+                        addToBasket(recipe.getName());
+                        updateCartButton(addToCartButton, recipe.getName());
+                    }
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+
+            Button removeRecipe = new Button("Удалить рецепт");
+            removeRecipe.setOnAction(b -> {
+                try {
+                    deleteFoodByName(recipe.getName());
+                    gridPane.getChildren().remove(recipeButton);
+                    categoryRecipeStage.hide();
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+
+
+            VBox buttonsBox = new VBox(5); // Контейнер для кнопок
+            buttonsBox.setAlignment(Pos.TOP_RIGHT);
+            buttonsBox.getChildren().addAll(addToFavoritesButton, addToCartButton, removeRecipe);
+
+            Label photoRecipeTextLabel = new Label("Главное фото:");
+
+            photoRecipeBox.getChildren().addAll(photoRecipeTextLabel, imageViewRecipe);
+
+            Text descriptionText = new Text(recipe.getDescription());
+            descriptionText.setWrappingWidth(400); // Задаем ширину, чтобы текст переносился
+
+            VBox descriptionBox = new VBox(); // Создаем контейнер для текста
+            Label descriptionLabel1 = new Label("Описание: ");
+            descriptionBox.getChildren().addAll(descriptionLabel1, descriptionText);
+
+            // Получаем список ингредиентов
+            List<String> ingredients = recipe.getIngredients();
+
+            VBox ingredientsBox = new VBox();
+            Label ingredientsLabel = new Label("Список ингредиентов:");
+
+            ingredientsBox.getChildren().add(ingredientsLabel);
+
+            for (String ingredient : ingredients) {
+                Label ingredientLabel = new Label(ingredient);
+                ingredientsBox.getChildren().add(ingredientLabel);
+            }
+
+            // Получаем списки шагов приготовления и соответствующих изображений
+            List<String> cookingSteps = recipe.getCookingStepsText();
+            List<String> cookingImages = recipe.getCookingStepsImg();
+
+            VBox cookingStepsBox = new VBox();
+            Label cookingStepsLabel = new Label("Шаги приготовления:");
+
+            cookingStepsBox.getChildren().add(cookingStepsLabel);
+
+            if (cookingSteps != null && cookingImages != null && cookingSteps.size() == cookingImages.size()) {
+                // Проходимся по каждому шагу приготовления и добавляем их в VBox
+                for (int j = 0; j < cookingSteps.size(); j++) {
+                    String step = cookingSteps.get(j);
+                    String stepImage = cookingImages.get(j);
+
+                    Label stepLabel = new Label("Шаг " + (j + 1) + ": " + step);
+
+                    ImageView stepImageView = new ImageView(new Image(stepImage));
+                    stepImageView.setFitWidth(200);
+                    stepImageView.setFitHeight(200);
+
+                    VBox stepContent = new VBox();
+                    stepContent.getChildren().addAll(stepLabel, stepImageView);
+                    cookingStepsBox.getChildren().add(stepContent);
+                }
+            } else {
+                // Если данные не доступны или несоответствуют, выводим сообщение об ошибке
+                Label errorLabel = new Label("Недостаточно данных о шагах приготовления или изображениях");
+                cookingStepsBox.getChildren().add(errorLabel);
+            }
+
+            Label nameRecipeTextLabel = new Label("Название: " + recipe.getName());
+            Label categoryRecipeTextLabel = new Label("Категории: " + recipe.getCategories());
+            Label cookingTimeRecipeTextLabel = new Label("Время приготовления: " + recipe.getCookingTime());
+            Label caloriesRecipeTextLabel = new Label("Калории: " + recipe.getCalories() + " ккал");
+            Label proteinRecipeTextLabel = new Label("Белки: " + recipe.getProtein() + " г");
+            Label fatRecipeTextLabel = new Label("Жиры: " + recipe.getFat() + " г");
+            Label carbohydratesRecipeTextLabel = new Label("Углеводы: " + recipe.getCarbohydrates() + " г");
+
+
+            root.getChildren().addAll(addToFavoritesButton, addToCartButton, removeRecipe, nameRecipeTextLabel, photoRecipeBox, descriptionBox, categoryRecipeTextLabel, cookingTimeRecipeTextLabel, caloriesRecipeTextLabel, proteinRecipeTextLabel, fatRecipeTextLabel, carbohydratesRecipeTextLabel, ingredientsBox, cookingStepsBox);
+
+            ScrollPane scrollPane = new ScrollPane(root);
+
+            Scene scene = new Scene(scrollPane, 800, 600);
+            categoryRecipeStage.setScene(scene);
+            categoryRecipeStage.show();
+        });
+
+        return recipeButton;
+    }
+
+
+
+    private List<Recipe> getRecipesByCategory(String category) {
+        List<Recipe> recipes = new ArrayList<>();
+        try {
+            recipes = getCategoryRecipe(category);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return recipes;
     }
 
     public void addProductButton(GridPane gridPane, String category) {
