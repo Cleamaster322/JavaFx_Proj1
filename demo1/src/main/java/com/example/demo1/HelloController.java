@@ -24,6 +24,7 @@ public class HelloController extends DataBaseHandler {
 
     public void onAButtonClick() {
         ObservableList<String> categories = FXCollections.observableArrayList("Бульоны и супы", "Десерты", "Выпечка", "Горячие блюда");
+        ObservableList<String> ingredients = FXCollections.observableArrayList("Мед", "Огурец", "Помидор");
         Stage categoryAStage = new Stage();
         categoryAStage.setTitle("Блюда");
 
@@ -32,11 +33,14 @@ public class HelloController extends DataBaseHandler {
 
         ComboBox<String> categoryComboBox = new ComboBox<>(categories);
         categoryComboBox.setPromptText("Выбери категорию");
+        ComboBox<String> ingredientComboBox = new ComboBox<>(ingredients);
+        ingredientComboBox.setPromptText("Выбери ингредиент");
+
 
         Button sortByTimeButtonASC = new Button("Сортировка по времени по возрастанию");
         Button sortByTimeButtonDESC = new Button("Сортировка по времени по убыванию");
 
-        root.getChildren().addAll(categoryComboBox, sortByTimeButtonASC, sortByTimeButtonDESC);
+        root.getChildren().addAll(categoryComboBox, ingredientComboBox, sortByTimeButtonASC, sortByTimeButtonDESC);
 
         GridPane gridPane = new GridPane();
         gridPane.setHgap(50);
@@ -66,6 +70,16 @@ public class HelloController extends DataBaseHandler {
         sortByTimeButtonDESC.setOnAction(e -> {
             try {
                 List<Recipe> recipes = getSortingByFoodTime("DESC");
+                updateGridPane(gridPane, recipes);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        });
+
+        ingredientComboBox.setOnAction(e -> {
+            String selectedIngredient = ingredientComboBox.getValue();
+            try {
+                List<Recipe> recipes = getFilteredRecipes(selectedIngredient);
                 updateGridPane(gridPane, recipes);
             } catch (SQLException ex) {
                 ex.printStackTrace();
@@ -787,6 +801,7 @@ public class HelloController extends DataBaseHandler {
         categoryAStage.show();
     }
 
+
     public void onCreateRecipe() {
         Stage createRecipeStage = new Stage();
         createRecipeStage.setTitle("Создание рецепта");
@@ -895,21 +910,38 @@ public class HelloController extends DataBaseHandler {
         Button nextButton = new Button("Далее");
 
         nextButton.setOnAction(e -> {
-            Recipe newRecipe = new Recipe();
-            newRecipe.setName(nameRecipeTextField.getText());
-            newRecipe.setDescription(descriptionRecipeTextField.getText());
-            newRecipe.setMainPhoto(mainPhotoRecipeTextField.getText());
-            newRecipe.setCategories(categoryRecipeTextField.getText());
-            newRecipe.setCookingTime(preparationTimeRecipeTextField.getText());
-            newRecipe.setCalories(caloriesRecipeTextField.getText());
-            newRecipe.setProtein(proteinRecipeTextField.getText());
-            newRecipe.setFat(fatRecipeTextField.getText());
-            newRecipe.setCarbohydrates(carbsRecipeTextField.getText());
-            newRecipe.setIngredients(ingredientsList.getItems());
-            newRecipe.setCookingStepsText(cookingStepListText.getItems());
-            newRecipe.setCookingStepsImg(cookingStepListImg.getItems());
+            if (nameRecipeTextField.getText().trim().isEmpty() ||
+                    descriptionRecipeTextField.getText().trim().isEmpty() ||
+                    mainPhotoRecipeTextField.getText().trim().isEmpty() ||
+                    categoryRecipeTextField.getText().trim().isEmpty() ||
+                    preparationTimeRecipeTextField.getText().trim().isEmpty() ||
+                    caloriesRecipeTextField.getText().trim().isEmpty() ||
+                    proteinRecipeTextField.getText().trim().isEmpty() ||
+                    fatRecipeTextField.getText().trim().isEmpty() ||
+                    carbsRecipeTextField.getText().trim().isEmpty()) {
 
-            createRecipeToDb(newRecipe);
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error Dialog");
+                alert.setHeaderText("Missing Information");
+                alert.setContentText("Please fill in all fields.");
+                alert.showAndWait();
+            } else {
+                Recipe newRecipe = new Recipe();
+                newRecipe.setName(nameRecipeTextField.getText());
+                newRecipe.setDescription(descriptionRecipeTextField.getText());
+                newRecipe.setMainPhoto(mainPhotoRecipeTextField.getText());
+                newRecipe.setCategories(categoryRecipeTextField.getText());
+                newRecipe.setCookingTime(preparationTimeRecipeTextField.getText());
+                newRecipe.setCalories(caloriesRecipeTextField.getText());
+                newRecipe.setProtein(proteinRecipeTextField.getText());
+                newRecipe.setFat(fatRecipeTextField.getText());
+                newRecipe.setCarbohydrates(carbsRecipeTextField.getText());
+                newRecipe.setIngredients(ingredientsList.getItems());
+                newRecipe.setCookingStepsText(cookingStepListText.getItems());
+                newRecipe.setCookingStepsImg(cookingStepListImg.getItems());
+
+                createRecipeToDb(newRecipe);
+            }
         });
 
         GridPane grid = new GridPane();
